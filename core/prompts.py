@@ -15,7 +15,7 @@ Question:
 {question}
 """
 
-prompt = PromptTemplate(
+prompt_template = PromptTemplate(
     input_variables=['context', 'question'],
     template=template
 )
