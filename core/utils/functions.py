@@ -5,6 +5,7 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings.openai import OpenAIEmbeddings
 
 # Other 3rd Party Imports
+import json
 from decouple import config
 
 # Internal Imports
@@ -31,3 +32,9 @@ def query_db(query: str, n_results: int = 5) -> list:
     db = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
     results = db.similarity_search(query, k=n_results)
     return [result.page_content for result in results]
+
+def clean_flashcard_response(raw_response: str) -> list:
+    """converts the raw string response of list of dictionaires
+    created by openai into actual list of dictionaries"""
+    response = raw_response.replace("'", "\"")
+    return json.loads(response)

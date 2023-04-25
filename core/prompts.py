@@ -19,3 +19,26 @@ prompt_template = PromptTemplate(
     input_variables=['context', 'question'],
     template=template
 )
+
+flash_card_template = """
+You are an enthusiastic assistant who likes helping others.
+You specialize in generating flash cards for a given topic mentioned in the
+"Topic" section. Only use information from the "Context" section below.
+
+generate {number} flashcards in the following format: a python list of dictionary
+with having two keys, "q" key that contains the question and "a" key that contains
+the answer
+
+Topic:
+{topic}
+
+Context:
+{context}
+
+Generated Flashcards:
+"""
+
+fc_prompt_template = PromptTemplate(
+    input_variables=['number', 'topic', 'context'],
+    template=flash_card_template
+)
