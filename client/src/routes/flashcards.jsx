@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import FlashCard from "../../components/FlashCard";
+
 export default function Flashcards() {
     const [topic, setTopic] = useState("");
     const [flashcards, setFlashcards] = useState([]);
@@ -12,9 +14,9 @@ export default function Flashcards() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({query: topic})
+            body: JSON.stringify({ query: topic })
         })
-        
+
         if (resp.status == 200) {
             const fcs = await resp.json()
             setFlashcards(fcs)
@@ -28,11 +30,9 @@ export default function Flashcards() {
                 <input type="text" onChange={(e) => setTopic(e.target.value)} />
                 <button type="submit">Generate Flashcards</button>
             </form>
-            <ul>
-                {flashcards.response ? flashcards.response.map((card) => {
-                    return <li>{card.q} Answer: {card.a}</li>
-                }) : ''}
-            </ul>
+            {flashcards.response ? flashcards.response.map((card) => {
+                return <FlashCard data={card} />
+            }) : ''}
         </>
     )
 }
