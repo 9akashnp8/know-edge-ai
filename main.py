@@ -45,7 +45,7 @@ def ask_query(payload: QueryModel):
     return {"response": llm(prompt)}
 
 @app.post('/api/flashcard/')
-def generate_flashcard(payload: QueryModel, number: int = 5):
+def generate_flashcard(payload: QueryModel, number: int = 1):
     context = query_db(payload.query)
     prompt = fc_prompt_template.format(number=number, context=' '.join(context), topic=payload.query)
     response = clean_flashcard_response(llm(prompt))
