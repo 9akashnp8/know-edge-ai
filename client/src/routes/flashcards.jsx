@@ -29,7 +29,7 @@ export default function Flashcards() {
                 <button type="submit">Generate Flashcards</button>
             </form>
             <ul>
-                {flashcards ? flashcards.response.map((card) => {
+                {flashcards.response ? flashcards.response.map((card) => {
                     return <li>{card.q} Answer: {card.a}</li>
                 }) : ''}
             </ul>
