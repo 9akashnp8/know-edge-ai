@@ -1,10 +1,10 @@
 from langchain.llms import OpenAI
 
-from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.endpoints import router
+
 app = FastAPI()
 
 origins = [
@@ -19,7 +19,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router)
-llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'))
 
 @app.get('/')
 def root():

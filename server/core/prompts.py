@@ -1,6 +1,6 @@
 from langchain.prompts import PromptTemplate
 
-template = """
+qna_template = """
 You are an enthusiastic assistant who likes helping others.
 From the info present in the "Context Section" below, try to
 answer the user's questions. If you are unsure of the answer, reply
@@ -15,9 +15,9 @@ Question:
 {question}
 """
 
-prompt_template = PromptTemplate(
+qna_prompt_template = PromptTemplate(
     input_variables=['context', 'question'],
-    template=template
+    template=qna_template
 )
 
 flash_card_template = """
@@ -38,7 +38,7 @@ Context:
 Generated Flashcards:
 """
 
-fc_prompt_template = PromptTemplate(
+flash_card_prompt_template = PromptTemplate(
     input_variables=['number', 'topic', 'context'],
     template=flash_card_template
 )
