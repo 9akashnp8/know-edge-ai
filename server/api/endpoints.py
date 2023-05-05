@@ -1,28 +1,15 @@
 from langchain.llms import OpenAI
-from langchain.chains import LLMChain
 
-import json
 import shutil
-from decouple import config
 from fastapi import FastAPI, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
+from decouple import config
 
-from models import QueryModel
+from ..app import app
+from .models import QueryModel
 from core.prompts import prompt_template, fc_prompt_template
-from core.utils import query_db, clean_flashcard_response, pdf_to_text_chunks, create_embeddings
+from core.functions import query_db, pdf_to_text_chunks, create_embeddings
+from utils.functions import clean_flashcard_response
 
-app = FastAPI()
-origins = [
-    "http://localhost:5173",
-    "http://13.127.158.156"
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["POST"],
-    allow_headers=["*"],
-)
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'))
 
 @app.post("/api/uploadfile/")

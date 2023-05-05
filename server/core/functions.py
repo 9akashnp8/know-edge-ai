@@ -1,17 +1,12 @@
-# LangChain Imports
 from langchain.document_loaders import PDFMinerLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.embeddings.openai import OpenAIEmbeddings
 
-# Other 3rd Party Imports
-import json
 from decouple import config
 
-# Internal Imports
-from .constants import PERSIST_DIRECTORY
+from utils.constants import PERSIST_DIRECTORY
 
-# Functions
 def pdf_to_text_chunks(file_path: str, chunk_size: int = 500) -> "list[str]":
     """converts a pdf to chunks for embedding creation"""
     loader = PDFMinerLoader(file_path)
@@ -32,9 +27,3 @@ def query_db(query: str, n_results: int = 5) -> list:
     db = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
     results = db.similarity_search(query, k=n_results)
     return [result.page_content for result in results]
-
-def clean_flashcard_response(raw_response: str) -> list:
-    """converts the raw string response of list of dictionaires
-    created by openai into actual list of dictionaries"""
-    response = raw_response.replace("'", "\"")
-    return json.loads(response)
