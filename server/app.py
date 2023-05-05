@@ -1,13 +1,12 @@
 from langchain.llms import OpenAI
-from langchain.chains import LLMChain
 
-import json
-import shutil
 from decouple import config
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.endpoints import router
 app = FastAPI()
+
 origins = [
     "http://localhost:5173",
     "http://13.127.158.156"
@@ -19,4 +18,9 @@ app.add_middleware(
     allow_methods=["POST"],
     allow_headers=["*"],
 )
+app.include_router(router)
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'))
+
+@app.get('/')
+def root():
+    return {'message': 'Study Smart AI API Root'}

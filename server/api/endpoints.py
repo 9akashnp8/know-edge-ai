@@ -1,18 +1,18 @@
 from langchain.llms import OpenAI
 
 import shutil
-from fastapi import FastAPI, UploadFile
+from fastapi import UploadFile, APIRouter
 from decouple import config
 
-from ..app import app
 from .models import QueryModel
 from core.prompts import prompt_template, fc_prompt_template
 from core.functions import query_db, pdf_to_text_chunks, create_embeddings
 from utils.functions import clean_flashcard_response
 
+router = APIRouter(prefix='/api')
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'))
 
-@app.post("/api/uploadfile/")
+@router.post("/api/uploadfile/")
 def upload_file(payload: UploadFile):
 
     # Save file to disk
@@ -25,13 +25,13 @@ def upload_file(payload: UploadFile):
     create_embeddings(docs=chunks)
     return {"message": "embeddings created successfully"}
 
-@app.post("/api/query/")
+@router.post("/api/query/")
 def ask_query(payload: QueryModel):
     context = query_db(payload.query)
     prompt = prompt_template.format(context=' '.join(context), question=payload.query)
     return {"response": llm(prompt)}
 
-@app.post('/api/flashcard/')
+@router.post('/api/flashcard/')
 def generate_flashcard(payload: QueryModel, number: int = 1):
     context = query_db(payload.query)
     prompt = fc_prompt_template.format(number=number, context=' '.join(context), topic=payload.query)
