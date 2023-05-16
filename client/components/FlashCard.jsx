@@ -4,6 +4,13 @@ import { Typography } from '@mui/material';
 
 import { useState } from 'react';
 
+/**
+ * Flashcard component that renders question on one
+ * side and answer behind it
+ * @param {Object} data - the question and answer
+ * object
+ * @returns 
+ */
 export default function FlashCard({ data }) {
     const [ displayData, setDisplayData ] = useState(data ? data.q : 'This is a question')
     const [ isViewingAnswer, setIsViewingAnswer ] = useState(false)
