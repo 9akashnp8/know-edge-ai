@@ -7,6 +7,9 @@ thanks to it's 32K token capability but it's access to data is still limited and
 
 This is what Study Smart AI is trying to solve, we're bridging the gap of the "data" and we're doing it by improving the prompt with context. 
 
-# Features (planned)
+# Features
+
+![](docs/demo.gif)
+
 - Upload text books (pdfs) and get the app to answer any of your questions
 - generate set of flash cards from the textbook
