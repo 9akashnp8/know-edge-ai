@@ -15,15 +15,15 @@ def pdf_to_text_chunks(file_path: str, chunk_size: int = 500) -> "list[str]":
     docs = text_splitter.split_documents(document)
     return docs
 
-def create_embeddings(docs: "list[str]") -> None:
+def create_embeddings(docs: "list[str]", collection_name: str) -> None:
     """creates and persists embeddings to db"""
     embeddings = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
-    db = Chroma.from_documents(docs, embeddings, persist_directory=PERSIST_DIRECTORY)
+    db = Chroma.from_documents(docs, embeddings, collection_name=collection_name, persist_directory=PERSIST_DIRECTORY)
     db.persist()
 
-def query_db(query: str, n_results: int = 5) -> list:
+def query_db(query: str, collection_name: str, n_results: int = 5) -> list:
     """query the vector db for similar text content"""
     embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
-    db = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
+    db = Chroma(collection_name=collection_name, persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
     results = db.similarity_search(query, k=n_results)
     return [result.page_content for result in results]
