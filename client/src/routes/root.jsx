@@ -8,8 +8,10 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
 import Toolbar from '@mui/material/Toolbar';
+import HomeIcon from '@mui/icons-material/Home';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import PsychologyIcon from '@mui/icons-material/Psychology';
 
 import { Outlet, Link } from "react-router-dom";
 
@@ -32,7 +34,7 @@ export default function Root(props) {
                     <ListItem disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <MailIcon />
+                                <HomeIcon />
                             </ListItemIcon>
                             <ListItemText primary={'Home'} />
                         </ListItemButton>
@@ -42,7 +44,7 @@ export default function Root(props) {
                     <ListItem disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <MailIcon />
+                                <QuestionAnswerIcon />
                             </ListItemIcon>
                             <ListItemText primary={'Q & A'} />
                         </ListItemButton>
@@ -52,7 +54,7 @@ export default function Root(props) {
                     <ListItem disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                <MailIcon />
+                                <PsychologyIcon />
                             </ListItemIcon>
                             <ListItemText primary={'Flash Cards'} />
                         </ListItemButton>
@@ -67,34 +69,11 @@ export default function Root(props) {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            {/* <AppBar
-                position="fixed"
-                sx={{
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    ml: { sm: `${drawerWidth}px` },
-                }}
-            >
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' } }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap component="div">
-                        Responsive drawer
-                    </Typography>
-                </Toolbar>
-            </AppBar> */}
             <Box
                 component="nav"
                 sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
                 aria-label="mailbox folders"
             >
-                {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                 <Drawer
                     container={container}
                     variant="temporary"
@@ -125,7 +104,6 @@ export default function Root(props) {
                 component="main"
                 sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
-                <Toolbar />
                 <Outlet />
             </Box>
         </Box>
