@@ -9,7 +9,7 @@ from core.prompts import qna_prompt_template, flash_card_prompt_template
 from core.functions import query_db, pdf_to_text_chunks, create_embeddings
 from utils.functions import clean_flashcard_response
 
-router = APIRouter(prefix='/api')
+router = APIRouter()
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'))
 
 @router.post("/uploadfile/")
