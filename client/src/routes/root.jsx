@@ -46,7 +46,7 @@ export default function Root(props) {
                             <ListItemIcon>
                                 <QuestionAnswerIcon />
                             </ListItemIcon>
-                            <ListItemText primary={'Q & A'} />
+                            <ListItemText primary={'Chat'} />
                         </ListItemButton>
                     </ListItem>
                 </Link>

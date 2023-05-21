@@ -1,16 +1,25 @@
 from langchain.llms import OpenAI
 
 import shutil
-from fastapi import UploadFile, APIRouter, Response
+from fastapi import UploadFile, APIRouter, WebSocket, WebSocketDisconnect
 from decouple import config
 
 from .models import QueryModel
 from core.prompts import qna_prompt_template, flash_card_prompt_template
 from core.functions import query_db, pdf_to_text_chunks, create_embeddings
 from utils.functions import clean_flashcard_response
+from utils.chat_manager import ConnectionManager
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationChain
 
 router = APIRouter()
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'))
+manager = ConnectionManager()
+conversation = ConversationChain(
+    llm=llm, 
+    verbose=True, 
+    memory=ConversationBufferMemory()
+)
 
 @router.post("/uploadfile/")
 def upload_file(payload: UploadFile):
@@ -80,3 +89,15 @@ def generate_flashcard(payload: QueryModel, number: int = 1):
     )
     response = clean_flashcard_response(llm(prompt))
     return {"response": response}
+
+@router.websocket("/ws/")
+async def chat_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            response = conversation.predict(input=data)
+            await manager.send_personal_message(response, websocket)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.send_personal_message("Chat Ended", websocket)
