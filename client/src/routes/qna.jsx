@@ -1,35 +1,31 @@
-import { useState } from "react"
+import { useState, useCallback, useEffect } from "react"
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Paper } from "@mui/material";
 
 import document from "../../../files/google.pdf";
 import AskButton from "../../components/AskButton";
+import ChatMessage from "../../components/ChatMessage";
 import { darkTheme } from "../main";
 
 export default function QnA() {
-    const [question, setQuestion] = useState("")
-    const [loading, setLoading] = useState(false)
-    const [answer, setAnswer] = useState("")
+    const [question, setQuestion] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [messageHistory, setMessageHistory] = useState([]);
 
-    async function handleSubmit() {
-        setLoading(true)
-        const resp = await fetch('http://127.0.0.1:8000/api/query/?collection_name=google.pdf', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ query: question })
-        })
-        if (resp.status == 200) {
-            const queryAnswer = await resp.json()
-            setAnswer(queryAnswer.response)
-            setQuestion("")
-            setLoading(false)
+    const { sendMessage, lastMessage } = useWebSocket('ws://localhost:8000/api/ws/');
+    const handleClickSendMessage = useCallback(() => {
+        setMessageHistory((prev) => prev.concat({user: 'user', message: {data: question}}))
+        sendMessage(question)
+    }, [question, setMessageHistory]);
+
+    useEffect(() => {
+        if (lastMessage !== null) {
+            setMessageHistory((prev) => prev.concat({user: 'system', message: lastMessage}));
         }
-    }
+    }, [lastMessage, setMessageHistory]);
+
     return (
         <div style={{ display: 'flex', height: '100vh' }}>
             <embed
@@ -64,22 +60,15 @@ export default function QnA() {
                         maxRows={4}
                         onChange={(e) => setQuestion(e.target.value)}
                         InputProps={{
-                            endAdornment: !loading ? <AskButton onClick={handleSubmit} /> : <CircularProgress />
+                            endAdornment: !loading ? <AskButton onClick={handleClickSendMessage} /> : <CircularProgress />
                         }}
                     />
                     <div style={{ flexGrow: 1 }}>
-                        {
-                            answer
-                                ? (
-                                    <Paper
-                                        elevation={0}
-                                        sx={{ p: 2, mt: 2 }}
-                                    >
-                                        {answer}
-                                    </Paper>
-                                )
-                                : ''
-                        }
+                        {messageHistory.map((message, idx) => (
+                            <ChatMessage key={idx}  messager={message.user} >
+                                {message ? message.message.data : null}
+                            </ChatMessage>
+                        ))}
                     </div>
                 </div>
             </div>
