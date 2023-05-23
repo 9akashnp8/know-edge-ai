@@ -11,6 +11,7 @@ import Root from './routes/root.jsx';
 import Home from './routes/home.jsx';
 import QnA from './routes/qna.jsx';
 import Flashcards from './routes/flashcards.jsx';
+import './main.css'
 
 export const darkTheme = createTheme({
     palette: {

@@ -1,0 +1,21 @@
+/* Custom styling for the chat content scrollbar */
+::-webkit-scrollbar {
+    width: 0.75rem;
+    
+}
+
+::-webkit-scrollbar-track {
+    background: #424242;
+    border-radius: 1rem;
+    
+}
+
+::-webkit-scrollbar-thumb {
+    background: #616161;
+    border-radius: 1rem;
+    
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #757575;
+}
