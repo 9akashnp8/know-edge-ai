@@ -56,12 +56,13 @@ export default function QnA() {
                         flexDirection: 'column'
                     }}
                 >
-                    <div style={{ overflowY: 'auto', paddingRight: '0.5rem' }}>
+                    <div id="scroller" style={{ overflowY: 'auto', paddingRight: '0.5rem' }}>
                         {messageHistory.map((message, idx) => (
                             <ChatMessage key={idx}  messager={message.user} >
                                 {message ? message.message.data : null}
                             </ChatMessage>
                         ))}
+                        <div id="anchor"></div>
                     </div>
                     <TextField
                         id="question"
