@@ -1,29 +1,89 @@
-import { Typography } from "@mui/material"
+import { Typography } from "@mui/material";
+import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 
-import { useState } from "react"
+import { useState } from "react";
+
+import { Link } from 'react-router-dom';
+
+import { startChatCTA, uploadDocumentCTA } from "../utils/theme";
 
 export default function Home() {
-    const [file, setFile] = useState(null);
-    const [uploadStatus, setUploadStatus] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    async function handleFileUpload(event) {
-        event.preventDefault()
+    // Upload file and redirect if successfull
+    async function handleFileUpload(fileObject) {
+        setLoading(true);
         const formData = new FormData();
-        formData.append("payload", file, file.name)
+        formData.append("payload", fileObject, fileObject.name)
         const resp = await fetch('http://127.0.0.1:8000/api/uploadfile/', {
             method: 'POST',
             body: formData
         })
-        setUploadStatus(resp.status == 200 ? "Uploaded Successfully" : "Error When Uploading")
+        if (resp.ok) {
+            setLoading(false);
+            window.location.href = '/qna'
+        }
     }
+
     return (
-        <>
-            <Typography variant="h4" component={"h1"}>Upload your document</Typography>
-            <form method="POST" onSubmit={handleFileUpload}>
-                <input type="file" name="document" id="document" onChange={(e) => setFile(e.target.files[0])}/>
-                <button type="submit">Upload</button>
-            </form>
-            {uploadStatus}
-        </>
+        <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+            <Box>
+                <Box textAlign={'center'}>
+                    <Typography variant="h3" component={"h1"} gutterBottom>
+                        Study Smart AI
+                    </Typography>
+                    <Typography variant="subtitle1" mb={3}>
+                        Your personal GPT Assisted Learning Partner!
+                    </Typography>
+                </Box>
+                <Stack direction={'row'} spacing={5}>
+                    <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => handleFileUpload(e.target.files[0])}
+                        id="upload-document"
+                        style={{ display: 'none' }}
+                    />
+                    <label htmlFor="upload-document">
+                        <Button
+                            component={Card}
+                            sx={{
+                                height: '100%',
+                                padding: 2,
+                                textTransform: 'none',
+                                fontSize: '1rem',
+                                color: 'white',
+                                backgroundColor: uploadDocumentCTA
+                            }}
+                        >
+                            <Stack direction={'row'} spacing={1}>
+                                <UploadFileIcon />
+                                <Typography>Upload Document</Typography>
+                            </Stack>
+                        </Button>
+                    </label>
+                    <Link to={'/qna'} style={{ textDecoration: 'none' }}>
+                        <Card
+                            sx={{
+                                backgroundColor: startChatCTA,
+                                height: '100%',
+                                padding: 2
+                            }}
+                        >
+                            <Stack direction={'row'} spacing={1}>
+                                <QuestionAnswerIcon />
+                                <Typography>Chat with Document</Typography>
+                            </Stack>
+                        </Card>
+                    </Link>
+                </Stack>
+            </Box>
+        </Box>
     )
 }
