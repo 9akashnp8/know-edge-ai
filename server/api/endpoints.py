@@ -1,4 +1,6 @@
+from typing import Any
 from langchain.llms import OpenAI
+from langchain.vectorstores import Chroma
 
 import shutil
 from fastapi import UploadFile, APIRouter, WebSocket, WebSocketDisconnect
@@ -6,19 +8,34 @@ from decouple import config
 
 from .models import QueryModel
 from core.prompts import qna_prompt_template, flash_card_prompt_template
+from core.functions import get_chat_history
 from core.functions import query_db, pdf_to_text_chunks, create_embeddings
 from utils.functions import clean_flashcard_response
 from utils.chat_manager import ConnectionManager
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationChain
+from langchain.chains import ConversationalRetrievalChain
+from langchain.embeddings.openai import OpenAIEmbeddings
+
+from utils.constants import PERSIST_DIRECTORY
 
 router = APIRouter()
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'))
 manager = ConnectionManager()
+memory = ConversationBufferMemory(memory_key="chat_history")
+embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
+vectorstore = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
+qa = ConversationalRetrievalChain.from_llm(
+    llm=llm,
+    verbose=True,
+    retriever=vectorstore.as_retriever(),
+    memory=memory,
+    get_chat_history=get_chat_history
+)
 conversation = ConversationChain(
-    llm=llm, 
-    verbose=True, 
-    memory=ConversationBufferMemory()
+    llm=llm,
+    verbose=True,
+    memory=memory
 )
 
 @router.post("/uploadfile/")
@@ -96,8 +113,14 @@ async def chat_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            response = conversation.predict(input=data)
-            await manager.send_personal_message(response, websocket)
+            if data.startswith("/doc"):
+                vectorstore = Chroma(collection_name='google.pdf', persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
+                qa.retriever = vectorstore.as_retriever()
+                result = qa({"question": data})
+                await manager.send_personal_message(result["answer"], websocket)
+            else:
+                result = conversation.predict(input=data)
+                await manager.send_personal_message(result, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.send_personal_message("Chat Ended", websocket)
