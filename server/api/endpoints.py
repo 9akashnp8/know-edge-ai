@@ -7,7 +7,7 @@ from fastapi import UploadFile, APIRouter, WebSocket, WebSocketDisconnect
 from decouple import config
 
 from .models import QueryModel
-from core.prompts import qna_prompt_template, flash_card_prompt_template
+from core.prompts import qna_prompt_template, flash_card_prompt_template, CHAT_PROMPT
 from core.functions import get_chat_history
 from core.functions import query_db, pdf_to_text_chunks, create_embeddings
 from utils.functions import clean_flashcard_response
@@ -36,7 +36,8 @@ qa = ConversationalRetrievalChain.from_llm(
 conversation = ConversationChain(
     llm=llm,
     verbose=True,
-    memory=memory
+    memory=memory,
+    prompt=CHAT_PROMPT
 )
 
 @router.post("/uploadfile/")
