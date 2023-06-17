@@ -9,7 +9,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import Root from './routes/root.jsx';
 import Home from './routes/home.jsx';
-import QnA from './routes/qna.jsx';
+import Chat from './routes/chat.jsx';
 import Flashcards from './routes/flashcards.jsx';
 import './main.css'
 
@@ -29,8 +29,8 @@ const router = createBrowserRouter([
                 element: <Home />
             },
             {
-                path: '/qna',
-                element: <QnA />
+                path: '/chat',
+                element: <Chat />
             },
             {
                 path: '/flashcards',

@@ -40,7 +40,7 @@ export default function Root(props) {
                         </ListItemButton>
                     </ListItem>
                 </Link>
-                <Link to={"/qna"} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link to={"/chat"} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <ListItem disablePadding>
                         <ListItemButton>
                             <ListItemIcon>

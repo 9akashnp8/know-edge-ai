@@ -27,7 +27,7 @@ export default function Home() {
         })
         if (resp.ok) {
             setLoading(false);
-            window.location.href = '/qna'
+            window.location.href = `/chat?fileName=${fileObject.name}`
         }
     }
 
@@ -68,7 +68,7 @@ export default function Home() {
                             </Stack>
                         </Button>
                     </label>
-                    <Link to={'/qna'} style={{ textDecoration: 'none' }}>
+                    <Link to={'/chat'} style={{ textDecoration: 'none' }}>
                         <Card
                             sx={{
                                 backgroundColor: startChatCTA,
