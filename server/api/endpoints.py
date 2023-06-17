@@ -1,8 +1,8 @@
-from typing import Any
+import os
 from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
 
-import shutil
+import tempfile
 from fastapi import UploadFile, APIRouter, WebSocket, WebSocketDisconnect
 from decouple import config
 
@@ -12,6 +12,7 @@ from core.functions import get_chat_history
 from core.functions import query_db, pdf_to_text_chunks, create_embeddings
 from utils.functions import clean_flashcard_response
 from utils.chat_manager import ConnectionManager
+from utils.db import supabase
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationChain
 from langchain.chains import ConversationalRetrievalChain
@@ -20,7 +21,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from utils.constants import PERSIST_DIRECTORY
 
 router = APIRouter()
-llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'))
+llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
 manager = ConnectionManager()
 memory = ConversationBufferMemory(memory_key="chat_history")
 embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
@@ -39,9 +40,9 @@ conversation = ConversationChain(
 )
 
 @router.post("/uploadfile/")
-def upload_file(payload: UploadFile):
-    """Endpoint that handles storing of pdf document and
-    creating embdeddings for the same
+async def upload_file(payload: UploadFile):
+    """Endpoint that handles creating embeddings and
+    storage of document.
 
     Args:
         payload (UploadFile): the pdf document to create
@@ -50,19 +51,21 @@ def upload_file(payload: UploadFile):
     Returns:
         json embeddings creation success message
     """
-    # Validate if file is pdf
-    if not payload.content_type == 'application/pdf':
+    if payload.content_type != 'application/pdf':
         return {'message': 'Please upload a PDF file'}
 
-    # Save file to disk
-    print(payload.content_type)
-    file_location = f"../files/{payload.filename}"
-    with open(file_location, "wb") as file:
-        shutil.copyfileobj(payload.file, file)
+    with tempfile.TemporaryDirectory(dir=".") as temp_dir:
+        file_path = os.path.join(temp_dir, payload.filename)
 
-    # Create embeddings (move this to background)
-    chunks = pdf_to_text_chunks(file_path=file_location)
-    create_embeddings(docs=chunks, collection_name=payload.filename)
+        with open(file_path, "wb") as f:
+            data = await payload.read()
+            f.write(data)
+
+        chunks = pdf_to_text_chunks(file_path=file_path)
+        create_embeddings(docs=chunks, collection_name=payload.filename)
+        res = supabase.storage.from_('document').upload(
+            payload.filename,data, {"content-type": "application/pdf"})
+
     return {"message": "embeddings created successfully"}
 
 @router.post("/query/")
