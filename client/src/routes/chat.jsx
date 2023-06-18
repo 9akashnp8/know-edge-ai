@@ -5,17 +5,19 @@ import { useSearchParams } from "react-router-dom";
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import document from "../../../files/google.pdf";
+import FileNotFound from "../../components/FileNotFound";
 import AskButton from "../../components/AskButton";
 import ChatMessage from "../../components/ChatMessage";
 import { darkTheme } from "../main";
+import { API_BASE_URL } from "../utils/constants";
 
 export default function Chat() {
     const [question, setQuestion] = useState("");
     const [loading, setLoading] = useState(false);
     const [messageHistory, setMessageHistory] = useState([]);
-    // const [document, setDocument] = useState(null);
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [hasFetchedDocument, setHasFetchedDocument] = useState(false);
+    const [fileUrl, setFileUrl] = useState('');
+    const [searchParams] = useSearchParams();
 
     const { sendMessage, lastMessage } = useWebSocket('ws://localhost:8000/api/ws/');
     const handleClickSendMessage = useCallback(() => {
@@ -25,27 +27,56 @@ export default function Chat() {
         setLoading(true)
     }, [question, setMessageHistory]);
 
+    /**
+     * Get document from server
+     * @param {string} fileName - the filename (including ".pdf")
+     * present in the query param.
+     */
+    async function getDocument(fileName) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/getfile/?file_name=${fileName}`)
+            if (response.ok) {
+                const document = await response.blob()
+                setFileUrl(URL.createObjectURL(document))
+            } else if (response.status == 400) {
+                console.log("File Not Found")
+            } else {
+                console.log("Error when fetching file")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
         if (lastMessage !== null) {
             setMessageHistory((prev) => prev.concat({ user: 'system', message: lastMessage }));
             setLoading(false)
         }
-        // const response = await fetch("http://127.0.0.1:8000/file/google.pdf")
-        // console.log(response)
-    }, [lastMessage, setMessageHistory]);
+        if (!hasFetchedDocument) {
+            getDocument(searchParams.get('fileName'));
+            setHasFetchedDocument(true);
+        }
+    }, [lastMessage, setMessageHistory, hasFetchedDocument]);
 
     return (
         <div style={{ display: 'flex', height: '93vh' }}>
-            <embed
-                src={document}
-                type="application/pdf"
-                frameBorder="0"
-                scrolling="auto"
-                style={{
-                    width: '50%',
-                    borderRadius: '1rem 0 0 1rem'
-                }}
-            ></embed>
+            {
+                fileUrl
+                    ? (
+                        <embed
+                            src={fileUrl}
+                            type="application/pdf"
+                            frameBorder="0"
+                            scrolling="auto"
+                            style={{
+                                width: '50%',
+                                borderRadius: '1rem 0 0 1rem'
+                            }}
+                        ></embed>
+                    )
+                    : <FileNotFound />
+            }
             <div
                 style={{
                     backgroundColor: darkTheme.palette.divider,

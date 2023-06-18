@@ -3,8 +3,11 @@ from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
 
 import tempfile
-from fastapi import UploadFile, APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import UploadFile, APIRouter, WebSocket, WebSocketDisconnect, Response
+from fastapi.responses import FileResponse
 from decouple import config
+from storage3.utils import StorageException
+from pathlib import Path
 
 from .models import QueryModel
 from core.prompts import qna_prompt_template, flash_card_prompt_template, CHAT_PROMPT
@@ -68,6 +71,25 @@ async def upload_file(payload: UploadFile):
             payload.filename,data, {"content-type": "application/pdf"})
 
     return {"message": "embeddings created successfully"}
+
+@router.get("/getfile/")
+def get_file(file_name: str, response: Response):
+    with tempfile.TemporaryDirectory(dir=".") as temp_dir:
+        file_path = os.path.join(temp_dir, file_name)
+        os.path.abspath(file_path)
+        # file_path = Path(__file__).parent.parent
+        print(file_path)
+
+        try:
+            res = supabase.storage.from_('document').download(file_name)
+        except StorageException:
+            response.status_code = 400
+            return {"message": "Requested File Not Found"}
+        else:
+            with open(file_path, 'wb+') as f:
+                f.write(res)
+            return FileResponse(path="google.pdf", filename="file.pdf", media_type="application/pdf")
+
 
 @router.post("/query/")
 def ask_query(payload: QueryModel, collection_name: str):
