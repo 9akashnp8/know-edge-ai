@@ -15,7 +15,8 @@ export default function Chat() {
     const [question, setQuestion] = useState("");
     const [loading, setLoading] = useState(false);
     const [messageHistory, setMessageHistory] = useState([]);
-    const [hasFetchedDocument, setHasFetchedDocument] = useState(false);
+    const [hasFetchedDocument, setHasFetchedDocument] = useState(false)
+    const [documentFound, setDocumentFound] = useState(true);
     const [fileUrl, setFileUrl] = useState('');
     const [searchParams] = useSearchParams();
 
@@ -40,6 +41,7 @@ export default function Chat() {
                 setFileUrl(URL.createObjectURL(document))
             } else if (response.status == 400) {
                 console.log("File Not Found")
+                setDocumentFound(false);
             } else {
                 console.log("Error when fetching file")
             }
@@ -62,7 +64,7 @@ export default function Chat() {
     return (
         <div style={{ display: 'flex', height: '93vh' }}>
             {
-                fileUrl
+                documentFound
                     ? (
                         <embed
                             src={fileUrl}
