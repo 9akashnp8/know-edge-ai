@@ -11,6 +11,7 @@ import Root from './routes/root.jsx';
 import Home from './routes/home.jsx';
 import Chat from './routes/chat.jsx';
 import Flashcards from './routes/flashcards.jsx';
+import Documents from './routes/documents.jsx';
 import './main.css'
 
 export const darkTheme = createTheme({
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
             {
                 path: '/flashcards',
                 element: <Flashcards />
+            },
+            {
+                path: '/documents',
+                element: <Documents />
             }
         ]
     },

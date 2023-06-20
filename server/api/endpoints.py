@@ -90,6 +90,11 @@ def get_file(file_name: str, response: Response):
                 f.write(res)
             return FileResponse(path="google.pdf", filename="file.pdf", media_type="application/pdf")
 
+@router.get("/allfiles/")
+def get_all_files():
+    res = supabase.storage.from_('document').list()
+    res.pop(0)
+    return res
 
 @router.post("/query/")
 def ask_query(payload: QueryModel, collection_name: str):
