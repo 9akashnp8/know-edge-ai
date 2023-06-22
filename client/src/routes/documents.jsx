@@ -5,8 +5,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+
+import { Link } from 'react-router-dom';
 
 import { useState, useEffect } from "react";
+
 import { API_BASE_URL } from "../utils/constants"
 
 export default function Documents() {
@@ -26,22 +31,35 @@ export default function Documents() {
 
     return (
         <Paper>
-            <h1>All Documents</h1>
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                         <TableRow>
                             <TableCell>Document</TableCell>
-                            <TableCell>Action</TableCell>
+                            <TableCell align='center'>Created Date</TableCell>
+                            <TableCell align='right'>Action</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {documents?.map((row) => (
                             <TableRow
                                 key={row.name}
+                                hover
                             >
-                                <TableCell component="th" scope="row">{row.name}</TableCell>
-                                <TableCell>{row.id}</TableCell>
+                                <TableCell>{row.name}</TableCell>
+                                <TableCell align='center'>
+                                    {new Date(row.created_at).toDateString()}
+                                </TableCell>
+                                <TableCell align='right'>
+                                    <Stack direction={'row'} spacing={2} justifyContent={'flex-end'}>
+                                        <Link to={`/chat?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
+                                            <Button variant="contained">Chat</Button>
+                                        </Link>
+                                        <Link to={`/delete?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
+                                            <Button variant="outlined" color="error">Delete</Button>
+                                        </Link>
+                                    </Stack>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

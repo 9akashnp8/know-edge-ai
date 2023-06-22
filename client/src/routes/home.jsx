@@ -68,7 +68,7 @@ export default function Home() {
                             </Stack>
                         </Button>
                     </label>
-                    <Link to={'/chat'} style={{ textDecoration: 'none' }}>
+                    <Link to={'/documents'} style={{ textDecoration: 'none' }}>
                         <Card
                             sx={{
                                 backgroundColor: startChatCTA,
