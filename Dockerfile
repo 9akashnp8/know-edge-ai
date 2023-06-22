@@ -1,10 +1,12 @@
-FROM python:3.11-slim
+FROM python:3.11-alpine
 WORKDIR /app
 
 # Install node to build front end
-RUN apt-get update; \
-    curl -fsSL https://deb.nodesource.com/setup_19.x | bash -; \
-    apt install -y nodejs npm
+RUN apk update; \
+    rm -rf /var/cache/apk/*; \
+    apk add curl; \
+    apk add --update nodejs npm; \
+    rm -rf /var/cache/apk/* /tmp/*
 COPY client client
 WORKDIR /app/client
 RUN rm -rf node_modules; \
