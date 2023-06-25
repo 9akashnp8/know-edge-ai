@@ -3,23 +3,28 @@ from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
 
 import tempfile
+import asyncio
 from fastapi import UploadFile, APIRouter, WebSocket, WebSocketDisconnect, Response
 from fastapi.responses import FileResponse
 from decouple import config
 from storage3.utils import StorageException
 from pathlib import Path
+from sse_starlette.sse import EventSourceResponse
 
 from .models import QueryModel
 from core.prompts import qna_prompt_template, flash_card_prompt_template, CHAT_PROMPT
 from core.functions import get_chat_history
 from core.functions import query_db, pdf_to_text_chunks, create_embeddings
+from core.streaming_chain import StreamingConversationChain
 from utils.functions import clean_flashcard_response
 from utils.chat_manager import ConnectionManager
 from utils.db import supabase
+from .models import UserMessage
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationChain
 from langchain.chains import ConversationalRetrievalChain
 from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.callbacks import AsyncIteratorCallbackHandler
 
 from utils.constants import PERSIST_DIRECTORY
 
@@ -41,6 +46,10 @@ conversation = ConversationChain(
     verbose=True,
     memory=memory,
     prompt=CHAT_PROMPT
+)
+streaming_response_chain = StreamingConversationChain(
+    openai_api_key=config('OPENAI_API_KEY'),
+    temparature=1
 )
 
 @router.post("/uploadfile/")
@@ -155,3 +164,39 @@ async def chat_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.send_personal_message("Chat Ended", websocket)
+
+async def generate_response(message: str):
+    callback_handler = AsyncIteratorCallbackHandler()
+    llm = OpenAI(
+        callbacks=[callback_handler],
+        streaming=True,
+        temperature=1,
+        openai_api_key=config('OPENAI_API_KEY')
+    )
+    memory = ConversationBufferMemory(memory_key="chat_history")
+    qa = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        verbose=True,
+        retriever=vectorstore.as_retriever(),
+        memory=memory,
+        get_chat_history=get_chat_history
+    )
+    conversation = ConversationChain(
+        llm=llm,
+        verbose=True,
+        memory=memory,
+        prompt=CHAT_PROMPT,
+    )
+    if message.startswith("/doc"):
+        run = asyncio.create_task(qa({"question": message}))
+    run = asyncio.create_task(conversation.apredict(input=message))
+    async for token in callback_handler.aiter():
+        yield token
+    await run
+
+@router.post('/stream', response_class=EventSourceResponse)
+async def message_stream(user_message: UserMessage):
+    return EventSourceResponse(
+        streaming_response_chain.generate_response(user_message.message),
+        media_type="text/event-stream"
+    )
