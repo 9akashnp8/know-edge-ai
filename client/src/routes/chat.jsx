@@ -15,18 +15,56 @@ export default function Chat() {
     const [question, setQuestion] = useState("");
     const [loading, setLoading] = useState(false);
     const [messageHistory, setMessageHistory] = useState([]);
+    const [chatResponse, setChatResponse] = useState('')
     const [hasFetchedDocument, setHasFetchedDocument] = useState(false)
     const [documentFound, setDocumentFound] = useState(true);
     const [fileUrl, setFileUrl] = useState('');
     const [searchParams] = useSearchParams();
 
-    const { sendMessage, lastMessage } = useWebSocket('ws://localhost:8000/api/ws/');
     const handleClickSendMessage = useCallback(() => {
-        setMessageHistory((prev) => prev.concat({ user: 'user', message: { data: question } }))
-        sendMessage(question)
-        setQuestion("")
+        setMessageHistory([...messageHistory, { user: 'user', message: question }]);
         setLoading(true)
+        getResponse(question)
     }, [question, setMessageHistory]);
+
+    /**
+     * stream event-stream response received from server,
+     * once done, append streamed/final message to messageHistory
+     * @param {string} message the user message
+     */
+    async function getResponse(message) {
+        const response = await fetch(`${API_BASE_URL}/stream`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'text/event-stream',
+            },
+            body: JSON.stringify({ "message": message })
+        })
+        const reader = response.body.pipeThrough(new TextDecoderStream()).getReader()
+
+        let streamingResponse = [];
+        while (true) {
+            let { value, done } = await reader.read()
+            if (done) {
+                setMessageHistory((prevmessageHistory) => [
+                    ...prevmessageHistory,
+                    { user: 'system', message: streamingResponse }
+                ]);
+                setChatResponse('');
+                setLoading(false)
+                break
+            }
+
+            const pattern = /data: /;
+            value.match(pattern)
+                ? value = value.replace("data: ", "")
+                : null
+            streamingResponse += value
+
+            setChatResponse(streamingResponse);
+        }
+    }
 
     /**
      * Get document from server
@@ -51,15 +89,11 @@ export default function Chat() {
     }
 
     useEffect(() => {
-        if (lastMessage !== null) {
-            setMessageHistory((prev) => prev.concat({ user: 'system', message: lastMessage }));
-            setLoading(false)
-        }
         if (!hasFetchedDocument) {
             getDocument(searchParams.get('fileName'));
             setHasFetchedDocument(true);
         }
-    }, [lastMessage, setMessageHistory, hasFetchedDocument]);
+    }, [hasFetchedDocument]);
 
     return (
         <div style={{ display: 'flex', height: '93vh' }}>
@@ -98,9 +132,18 @@ export default function Chat() {
                     <div id="scroller" style={{ overflowY: 'auto', paddingRight: '0.5rem' }}>
                         {messageHistory.map((message, idx) => (
                             <ChatMessage key={idx} messager={message.user} >
-                                {message ? message.message.data : null}
+                                {message ? message.message : null}
                             </ChatMessage>
                         ))}
+                        {chatResponse
+                            ? (
+                                <ChatMessage messager={'system'}>
+                                    {chatResponse}
+                                </ChatMessage>
+                            )
+                            : null
+                        }
+
                         <div id="anchor"></div>
                     </div>
                     <TextField
