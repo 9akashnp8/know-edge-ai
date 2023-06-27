@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react"
-import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { useSearchParams } from "react-router-dom";
 
 import TextField from '@mui/material/TextField';
@@ -23,6 +22,7 @@ export default function Chat() {
 
     const handleClickSendMessage = useCallback(() => {
         setMessageHistory([...messageHistory, { user: 'user', message: question }]);
+        setQuestion('');
         setLoading(true)
         getResponse(question)
     }, [question, setMessageHistory]);
@@ -43,7 +43,7 @@ export default function Chat() {
         })
         const reader = response.body.pipeThrough(new TextDecoderStream()).getReader()
 
-        let streamingResponse = [];
+        let streamingResponse = "";
         while (true) {
             let { value, done } = await reader.read()
             if (done) {
@@ -57,10 +57,11 @@ export default function Chat() {
             }
 
             const pattern = /data: /;
-            value.match(pattern)
-                ? value = value.replace("data: ", "")
-                : null
-            streamingResponse += value
+
+            if (Boolean(value.match(pattern))) {
+                value = value.replace(pattern, "")
+                streamingResponse += value
+            }
 
             setChatResponse(streamingResponse);
         }
