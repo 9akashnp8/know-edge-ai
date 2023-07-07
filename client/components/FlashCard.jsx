@@ -26,8 +26,12 @@ export default function FlashCard({ data }) {
     }
 
     return (
-        <Box sx={{ maxWidth: 275, minWidth: 'content' }}>
-            <Card variant="outlined">
+        <Box sx={{
+            maxWidth: 275,
+            minWidth: 'content',
+            padding: '5px'
+        }}>
+            <Card variant="outlined" sx={{borderRadius: '1rem',minHeight: 160}}>
                 <div style={{ display: 'grid', placeItems: 'center', padding: '2rem'}}>
                     <Typography mb={3}>{displayData}</Typography>
                     {!isViewingAnswer ? <button type='button' onClick={handleViewAnswer}>View</button> : <button type='button' onClick={handleHideAnswer}>Hide</button>}

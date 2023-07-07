@@ -55,6 +55,9 @@ export default function Documents() {
                                         <Link to={`/chat?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
                                             <Button variant="contained">Chat</Button>
                                         </Link>
+                                        <Link to={`/flashcards?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
+                                            <Button variant="contained">Flashcards</Button>
+                                        </Link>
                                         <Link to={`/delete?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
                                             <Button variant="outlined" color="error">Delete</Button>
                                         </Link>
