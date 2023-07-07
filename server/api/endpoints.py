@@ -125,7 +125,7 @@ def ask_query(payload: QueryModel, collection_name: str):
     return {"response": llm(prompt)}
 
 @router.post('/flashcard/')
-def generate_flashcard(payload: QueryModel, number: int = 1):
+def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1):
     """Generates "number" number of flashcards for a given topic
     by the user
 
@@ -139,7 +139,7 @@ def generate_flashcard(payload: QueryModel, number: int = 1):
         a json with the response key having the response
         from OpenAI
     """
-    context = query_db(payload.query)
+    context = query_db(payload.query, fileName)
     prompt = flash_card_prompt_template.format(
         number=number,
         context=' '.join(context), topic=payload.query
