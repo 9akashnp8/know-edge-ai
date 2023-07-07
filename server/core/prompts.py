@@ -35,9 +35,10 @@ You are an enthusiastic assistant who likes helping others.
 You specialize in generating flash cards for a given topic mentioned in the
 "Topic" section. Only use information from the "Context" section below.
 
-generate {number} flashcards in the following format: a python list of dictionary
-with having two keys, "q" key that contains the question and "a" key that contains
-the answer
+generate {number} flashcards in the following format: a JSON array with objects
+having two keys, "q" key that contains the question and "a" key that contains
+the answer. It is critical that the output is JSON friendly, this means no "\n"
+or "\t" or any other non-JSON characters
 
 Topic:
 {topic}
