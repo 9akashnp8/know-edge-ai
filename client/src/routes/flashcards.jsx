@@ -14,6 +14,7 @@ import { darkTheme } from "../main";
 export default function Flashcards() {
     const [topic, setTopic] = useState("");
     const [flashcards, setFlashcards] = useState([]);
+    const [isDownloadable, setIsDownloadable] = useState(false);
     const [searchParams] = useSearchParams();
 
     async function handleSubmit(event) {
@@ -31,6 +32,7 @@ export default function Flashcards() {
         if (resp.status == 200) {
             const fcs = await resp.json()
             setFlashcards(fcs)
+            setIsDownloadable(true)
         }
     }
 
@@ -55,6 +57,22 @@ export default function Flashcards() {
                             onChange={(e) => setTopic(e.target.value)}
                         />
                         <Button variant="contained" type="submit">Generate</Button>
+                        {isDownloadable
+                            ? (
+                                <Button
+                                    variant="outlined"
+                                    type="submit"
+                                    sx={{ marginLeft: 'auto !important'}}
+                                    href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                                        JSON.stringify(flashcards, null, '\t')
+                                    )}`}
+                                    download="filename.json"
+                                >
+                                    Download
+                                </Button>
+                            )
+                            : null
+                        }
                     </Stack>
                 </form>
             </Box>
