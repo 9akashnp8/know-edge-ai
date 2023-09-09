@@ -62,15 +62,13 @@ streaming_response_chain = StreamingConversationChain(
 
 @router.post("/uploadfile/")
 async def upload_file(payload: UploadFile):
-    """Endpoint that handles creating embeddings and
-    storage of document.
+    """Store file temporarily to create
+    embeddings (local) & upload file to cloud
+    once done.
 
     Args:
         payload (UploadFile): the pdf document to create
         embeddings for
-
-    Returns:
-        json embeddings creation success message
     """
     if payload.content_type != 'application/pdf':
         return {'message': 'Please upload a PDF file'}
@@ -90,7 +88,18 @@ async def upload_file(payload: UploadFile):
     return {"message": "embeddings created successfully"}
 
 @router.get("/getfile/")
-def get_file(file_name: str, response: Response):
+def get_file(file_name: str):
+    """get file from cloud, send file
+    bytes directly as response
+
+    Args:
+        file_name (str): name of file given
+    when uploading to cloud. Will come from documents
+    list page as query param.
+
+    TODO: store file locally? downloading file everytime
+    not efficient.
+    """
     try:
         res = supabase.storage.from_('document').download(file_name)
     except StorageException:
@@ -100,8 +109,9 @@ def get_file(file_name: str, response: Response):
 
 @router.get("/allfiles/")
 def get_all_files():
+    """List all files from cloud"""
     res = supabase.storage.from_('document').list()
-    res.pop(0)
+    res.pop(0) # remove default 'emptyFolderPlace' item, see Issue #9155 on supabase.
     return res
 
 @router.post("/query/")
