@@ -1,37 +1,45 @@
 import os
-from langchain.llms import OpenAI
-from langchain.vectorstores import Chroma
-
 import tempfile
 import asyncio
-from fastapi import UploadFile, APIRouter, WebSocket, WebSocketDisconnect, Response
-from fastapi.responses import FileResponse
+from fastapi import (
+    UploadFile,
+    APIRouter,
+    WebSocket,
+    WebSocketDisconnect,
+    Response,
+)
 from decouple import config
+from langchain.llms import OpenAI
+from langchain.vectorstores import Chroma
 from storage3.utils import StorageException
-from pathlib import Path
 from sse_starlette.sse import EventSourceResponse
-
-from .models import QueryModel
-from core.prompts import qna_prompt_template, flash_card_prompt_template, CHAT_PROMPT
-from core.functions import get_chat_history
-from core.functions import query_db, pdf_to_text_chunks, create_embeddings
-from core.streaming_chain import StreamingConversationChain
-from utils.functions import clean_flashcard_response
-from utils.chat_manager import ConnectionManager
-from utils.db import supabase
-from .models import UserMessage
 from langchain.memory import ConversationBufferMemory
-from langchain.chains import ConversationChain
-from langchain.chains import ConversationalRetrievalChain
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.callbacks import AsyncIteratorCallbackHandler
+from langchain.chains import ConversationChain, ConversationalRetrievalChain
 
+from utils.db import supabase
+from core.prompts import (
+    qna_prompt_template,
+    flash_card_prompt_template,
+    CHAT_PROMPT,
+)
+from core.functions import (
+    get_chat_history,
+    query_db,
+    pdf_to_text_chunks,
+    create_embeddings
+)
+from .models import QueryModel, UserMessage
+from core.streaming_chain import StreamingConversationChain
+from utils.functions import clean_flashcard_response
 from utils.constants import PERSIST_DIRECTORY
+from utils.chat_manager import ConnectionManager
 
 router = APIRouter()
-llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
 manager = ConnectionManager()
 memory = ConversationBufferMemory(memory_key="chat_history")
+llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
 embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
 vectorstore = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
 qa = ConversationalRetrievalChain.from_llm(
@@ -112,7 +120,10 @@ def ask_query(payload: QueryModel, collection_name: str):
         from OpenAI
     """
     context = query_db(payload.query, collection_name=collection_name)
-    prompt = qna_prompt_template.format(context=' '.join(context), question=payload.query)
+    prompt = qna_prompt_template.format(
+        context=' '.join(context),
+        question=payload.query
+    )
     return {"response": llm(prompt)}
 
 @router.post('/flashcard/')
@@ -145,7 +156,11 @@ async def chat_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             if data.startswith("/doc"):
-                vectorstore = Chroma(collection_name='google.pdf', persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
+                vectorstore = Chroma(
+                    collection_name='google.pdf',
+                    persist_directory=PERSIST_DIRECTORY,
+                    embedding_function=embedding
+                )
                 qa.retriever = vectorstore.as_retriever()
                 result = qa({"question": data})
                 await manager.send_personal_message(result["answer"], websocket)
