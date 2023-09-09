@@ -24,7 +24,7 @@ from core.functions import (
 from .models import QueryModel, UserMessage
 from core.streaming_chain import StreamingConversationChain
 from utils.functions import clean_flashcard_response
-from utils.constants import PERSIST_DIRECTORY
+from utils.constants import PERSIST_DIRECTORY, mock_flashcard_response
 
 router = APIRouter()
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
@@ -90,7 +90,7 @@ def get_all_files():
     return res
 
 @router.post('/flashcard/')
-def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1):
+def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1, mock: bool = False):
     """Generates "number" number of flashcards for a given topic
     by the user
 
@@ -104,6 +104,8 @@ def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1):
         a json with the response key having the response
         from OpenAI
     """
+    if mock:
+        return {"response": mock_flashcard_response}
     context = query_db(payload.query, fileName)
     prompt = flash_card_prompt_template.format(
         number=number,
