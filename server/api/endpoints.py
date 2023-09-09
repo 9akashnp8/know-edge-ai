@@ -20,7 +20,6 @@ from langchain.chains import ConversationChain, ConversationalRetrievalChain
 
 from utils.db import supabase
 from core.prompts import (
-    qna_prompt_template,
     flash_card_prompt_template,
     CHAT_PROMPT,
 )
@@ -113,28 +112,6 @@ def get_all_files():
     res = supabase.storage.from_('document').list()
     res.pop(0) # remove default 'emptyFolderPlace' item, see Issue #9155 on supabase.
     return res
-
-@router.post("/query/")
-def ask_query(payload: QueryModel, collection_name: str):
-    """Question and Answer endpoint that takes user query
-    from request body, get's context via vector search
-    and sends OpenAI a completion request along with the
-    prompt template, queried context and the actual query.
-
-    Args:
-        payload (QueryModel): a json with just a query key
-        having the actual user question as it's value
-
-    Returns:
-        a json with the response key having the response
-        from OpenAI
-    """
-    context = query_db(payload.query, collection_name=collection_name)
-    prompt = qna_prompt_template.format(
-        context=' '.join(context),
-        question=payload.query
-    )
-    return {"response": llm(prompt)}
 
 @router.post('/flashcard/')
 def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1):
