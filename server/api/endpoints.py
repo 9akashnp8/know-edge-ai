@@ -118,35 +118,6 @@ def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1):
     response = clean_flashcard_response(llm(prompt))
     return {"response": response}
 
-async def generate_response(message: str):
-    callback_handler = AsyncIteratorCallbackHandler()
-    llm = OpenAI(
-        callbacks=[callback_handler],
-        streaming=True,
-        temperature=1,
-        openai_api_key=config('OPENAI_API_KEY')
-    )
-    memory = ConversationBufferMemory(memory_key="chat_history")
-    qa = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        verbose=True,
-        retriever=vectorstore.as_retriever(),
-        memory=memory,
-        get_chat_history=get_chat_history
-    )
-    conversation = ConversationChain(
-        llm=llm,
-        verbose=True,
-        memory=memory,
-        prompt=CHAT_PROMPT,
-    )
-    if message.startswith("/doc"):
-        run = asyncio.create_task(qa({"question": message}))
-    run = asyncio.create_task(conversation.apredict(input=message))
-    async for token in callback_handler.aiter():
-        yield token
-    await run
-
 @router.post('/stream', response_class=EventSourceResponse)
 async def message_stream(user_message: UserMessage):
     return EventSourceResponse(
