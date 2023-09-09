@@ -1,6 +1,5 @@
 import os
 import tempfile
-import asyncio
 from fastapi import (
     UploadFile,
     APIRouter,
@@ -11,18 +10,13 @@ from langchain.llms import OpenAI
 from langchain.vectorstores import Chroma
 from storage3.utils import StorageException
 from sse_starlette.sse import EventSourceResponse
-from langchain.memory import ConversationBufferMemory
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.callbacks import AsyncIteratorCallbackHandler
-from langchain.chains import ConversationChain, ConversationalRetrievalChain
 
 from utils.db import supabase
 from core.prompts import (
     flash_card_prompt_template,
-    CHAT_PROMPT,
 )
 from core.functions import (
-    get_chat_history,
     query_db,
     pdf_to_text_chunks,
     create_embeddings
@@ -120,6 +114,13 @@ def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1):
 
 @router.post('/stream', response_class=EventSourceResponse)
 async def message_stream(user_message: UserMessage):
+    """stream endpoint to chat with gen ai.
+
+    Args:
+        user_message (UserMessage): Prefix user_message with "/doc"
+    to chat with document, without to chat in general (but with context
+    of previous chat)
+    """
     return EventSourceResponse(
         streaming_response_chain.generate_response(user_message.message),
         media_type="text/event-stream"
