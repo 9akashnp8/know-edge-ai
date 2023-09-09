@@ -19,7 +19,7 @@ export default function Flashcards() {
     async function handleSubmit(event) {
         event.preventDefault();
         const fileName = searchParams.get('fileName')
-        const resp = await fetch(`http://127.0.0.1:8000/api/flashcard/?fileName=${fileName}`, {
+        const resp = await fetch(`http://127.0.0.1:8000/api/flashcard/?fileName=${fileName}&mock=True`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
