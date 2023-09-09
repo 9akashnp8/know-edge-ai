@@ -5,7 +5,6 @@ import Box from '@mui/material/Box';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 
 import { useState } from "react";
 
@@ -69,18 +68,22 @@ export default function Home() {
                         </Button>
                     </label>
                     <Link to={'/documents'} style={{ textDecoration: 'none' }}>
-                        <Card
+                        <Button
+                            component={Card}
                             sx={{
-                                backgroundColor: startChatCTA,
                                 height: '100%',
-                                padding: 2
+                                padding: 2,
+                                textTransform: 'none',
+                                fontSize: '1rem',
+                                color: 'white',
+                                backgroundColor: startChatCTA
                             }}
                         >
                             <Stack direction={'row'} spacing={1}>
                                 <QuestionAnswerIcon />
-                                <Typography>Chat with Document</Typography>
+                                <Typography>Chat & Learn</Typography>
                             </Stack>
-                        </Card>
+                        </Button>
                     </Link>
                 </Stack>
             </Box>
