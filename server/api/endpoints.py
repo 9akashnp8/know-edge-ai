@@ -4,8 +4,6 @@ import asyncio
 from fastapi import (
     UploadFile,
     APIRouter,
-    WebSocket,
-    WebSocketDisconnect,
     Response,
 )
 from decouple import config
@@ -33,27 +31,11 @@ from .models import QueryModel, UserMessage
 from core.streaming_chain import StreamingConversationChain
 from utils.functions import clean_flashcard_response
 from utils.constants import PERSIST_DIRECTORY
-from utils.chat_manager import ConnectionManager
 
 router = APIRouter()
-manager = ConnectionManager()
-memory = ConversationBufferMemory(memory_key="chat_history")
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
 embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
 vectorstore = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
-qa = ConversationalRetrievalChain.from_llm(
-    llm=llm,
-    verbose=True,
-    retriever=vectorstore.as_retriever(),
-    memory=memory,
-    get_chat_history=get_chat_history
-)
-conversation = ConversationChain(
-    llm=llm,
-    verbose=True,
-    memory=memory,
-    prompt=CHAT_PROMPT
-)
 streaming_response_chain = StreamingConversationChain(
     openai_api_key=config('OPENAI_API_KEY'),
     temparature=1
@@ -135,28 +117,6 @@ def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1):
     )
     response = clean_flashcard_response(llm(prompt))
     return {"response": response}
-
-@router.websocket("/ws/")
-async def chat_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            if data.startswith("/doc"):
-                vectorstore = Chroma(
-                    collection_name='google.pdf',
-                    persist_directory=PERSIST_DIRECTORY,
-                    embedding_function=embedding
-                )
-                qa.retriever = vectorstore.as_retriever()
-                result = qa({"question": data})
-                await manager.send_personal_message(result["answer"], websocket)
-            else:
-                result = conversation.predict(input=data)
-                await manager.send_personal_message(result, websocket)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.send_personal_message("Chat Ended", websocket)
 
 async def generate_response(message: str):
     callback_handler = AsyncIteratorCallbackHandler()
