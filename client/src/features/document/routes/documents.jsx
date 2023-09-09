@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 
 import { useState, useEffect } from "react";
 
-import { API_BASE_URL } from "../utils/constants"
+import { API_BASE_URL } from "../../../utils/constants"
 
 export default function Documents() {
     const [documents, setDocuments] = useState(null);

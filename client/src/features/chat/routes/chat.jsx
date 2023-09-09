@@ -4,11 +4,11 @@ import { useSearchParams } from "react-router-dom";
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import FileNotFound from "../../components/FileNotFound";
-import AskButton from "../../components/AskButton";
-import ChatMessage from "../../components/ChatMessage";
-import { darkTheme } from "../main";
-import { API_BASE_URL } from "../utils/constants";
+import FileNotFound from "../../core/components/FileNotFound";
+import AskButton from "../components/AskButton";
+import ChatMessage from "../components/ChatMessage";
+import { darkTheme } from "../../../main";
+import { API_BASE_URL } from "../../../utils/constants";
 
 export default function Chat() {
     const [question, setQuestion] = useState("");

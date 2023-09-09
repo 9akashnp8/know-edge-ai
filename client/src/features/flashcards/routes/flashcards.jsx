@@ -8,8 +8,8 @@ import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 
-import FlashCard from "../../components/FlashCard";
-import { darkTheme } from "../main";
+import FlashCard from "../components/FlashCard";
+import { darkTheme } from "../../../main";
 
 export default function Flashcards() {
     const [topic, setTopic] = useState("");

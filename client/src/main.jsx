@@ -7,11 +7,11 @@ import {
 } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-import Root from './routes/root.jsx';
-import Home from './routes/home.jsx';
+import Root from './features/core/routes/root.jsx';
+import Home from './features/core/routes/home.jsx';
 import Chat from './routes/chat.jsx';
-import Flashcards from './routes/flashcards.jsx';
-import Documents from './routes/documents.jsx';
+import Flashcards from './features/flashcards/routes/flashcards.jsx';
+import Documents from './features/document/routes/documents.jsx';
 import './main.css'
 
 export const darkTheme = createTheme({
