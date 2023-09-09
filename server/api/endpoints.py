@@ -83,21 +83,12 @@ async def upload_file(payload: UploadFile):
 
 @router.get("/getfile/")
 def get_file(file_name: str, response: Response):
-    with tempfile.TemporaryDirectory(dir=".") as temp_dir:
-        file_path = os.path.join(temp_dir, file_name)
-        os.path.abspath(file_path)
-        # file_path = Path(__file__).parent.parent
-        print(file_path)
-
-        try:
-            res = supabase.storage.from_('document').download(file_name)
-        except StorageException:
-            response.status_code = 400
-            return {"message": "Requested File Not Found"}
-        else:
-            with open(file_path, 'wb+') as f:
-                f.write(res)
-            return FileResponse(path="google.pdf", filename="file.pdf", media_type="application/pdf")
+    try:
+        res = supabase.storage.from_('document').download(file_name)
+    except StorageException:
+        return Response({"message": "Requested File Not Found"}, status_code=404)
+    else:
+        return Response(content=res, media_type="application/pdf")
 
 @router.get("/allfiles/")
 def get_all_files():
