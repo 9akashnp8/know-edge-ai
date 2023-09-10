@@ -26,7 +26,7 @@ export default function Home() {
         })
         if (resp.ok) {
             setLoading(false);
-            window.location.href = `/chat?fileName=${fileObject.name}`
+            window.location.href = `/document/chat?fileName=${fileObject.name}`
         }
     }
 

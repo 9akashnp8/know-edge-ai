@@ -38,7 +38,7 @@ export default function Flashcards() {
     }
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div>
             <div
                 style={{
                     backgroundColor: theme.palette.background.default,

@@ -2,6 +2,13 @@ body {
     margin: 0;
 }
 
+thead,
+tbody tr {
+    display: table !important;
+    width: 100% !important;
+    table-layout: fixed !important; /* even columns width , fix width of table too*/
+}
+
 /* Custom styling for the chat content scrollbar */
 ::-webkit-scrollbar {
     width: 0.75rem;
