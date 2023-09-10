@@ -37,57 +37,58 @@ export default function Flashcards() {
     }
 
     return (
-        <div
-            style={{
-                backgroundColor: darkTheme.palette.divider,
-                width: '100%',
-                minHeight: '93vh',
-                padding: '1.25rem',
-                borderRadius: '1rem'
-            }}
-        >
-            <Box pb={2}>
-                <form method="POST" onSubmit={handleSubmit}>
-                    <Stack spacing={2} direction={'row'}>
-                        <TextField
-                            id="topic"
-                            variant="outlined"
-                            size="small"
-                            label={searchParams.get('fileName')}
-                            onChange={(e) => setTopic(e.target.value)}
-                        />
-                        <Button variant="contained" type="submit">Generate</Button>
-                        {isDownloadable
-                            ? (
-                                <Button
-                                    variant="outlined"
-                                    type="submit"
-                                    sx={{ marginLeft: 'auto !important'}}
-                                    href={`data:text/json;charset=utf-8,${encodeURIComponent(
-                                        JSON.stringify(flashcards, null, '\t')
-                                    )}`}
-                                    download="filename.json"
-                                >
-                                    Download
-                                </Button>
+        <div style={{ padding: '20px' }}>
+            <div
+                style={{
+                    backgroundColor: darkTheme.palette.divider,
+                    padding: '20px',
+                    height: '88vh',
+                    borderRadius: '1rem'
+                }}
+            >
+                <Box pb={2}>
+                    <form method="POST" onSubmit={handleSubmit}>
+                        <Stack spacing={2} direction={'row'}>
+                            <TextField
+                                id="topic"
+                                variant="outlined"
+                                size="small"
+                                label={searchParams.get('fileName')}
+                                onChange={(e) => setTopic(e.target.value)}
+                            />
+                            <Button variant="contained" type="submit">Generate</Button>
+                            {isDownloadable
+                                ? (
+                                    <Button
+                                        variant="outlined"
+                                        type="submit"
+                                        sx={{ marginLeft: 'auto !important' }}
+                                        href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                                            JSON.stringify(flashcards, null, '\t')
+                                        )}`}
+                                        download="filename.json"
+                                    >
+                                        Download
+                                    </Button>
+                                )
+                                : null
+                            }
+                        </Stack>
+                    </form>
+                </Box>
+                <Divider />
+                <Box pt={2}>
+                    <Grid container spacing={2}>
+                        {flashcards.response ? flashcards.response.map((card) => {
+                            return (
+                                <Grid item xs={4}>
+                                    <FlashCard data={card} />
+                                </Grid>
                             )
-                            : null
-                        }
-                    </Stack>
-                </form>
-            </Box>
-            <Divider/>
-            <Box pt={2}>
-                <Grid container spacing={2}>
-                    {flashcards.response ? flashcards.response.map((card) => {
-                        return (
-                            <Grid item xs={4}>
-                                <FlashCard data={card} />
-                            </Grid>
-                        )
-                    }) : ''}
-                </Grid>
-            </Box>
+                        }) : ''}
+                    </Grid>
+                </Box>
+            </div>
         </div>
     )
 }

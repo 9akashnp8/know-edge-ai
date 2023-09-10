@@ -9,7 +9,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import Root from './features/core/routes/root.jsx';
 import Home from './features/core/routes/home.jsx';
-import Chat from './routes/chat.jsx';
+import Chat from './features/chat/routes/chat.jsx';
 import Flashcards from './features/flashcards/routes/flashcards.jsx';
 import Documents from './features/document/routes/documents.jsx';
 import './main.css'
