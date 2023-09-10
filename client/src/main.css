@@ -1,3 +1,7 @@
+body {
+    margin: 0;
+}
+
 /* Custom styling for the chat content scrollbar */
 ::-webkit-scrollbar {
     width: 0.75rem;

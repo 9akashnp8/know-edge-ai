@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react"
 import { useSearchParams } from "react-router-dom";
+import { useTheme } from "@mui/material";
 
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -7,10 +8,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import FileNotFound from "../../core/components/FileNotFound";
 import AskButton from "../components/AskButton";
 import ChatMessage from "../components/ChatMessage";
-import { darkTheme } from "../../../main";
 import { API_BASE_URL } from "../../../utils/constants";
 
 export default function Chat() {
+    const theme = useTheme();
     const [question, setQuestion] = useState("");
     const [loading, setLoading] = useState(false);
     const [messageHistory, setMessageHistory] = useState([]);
@@ -97,7 +98,7 @@ export default function Chat() {
     }, [hasFetchedDocument]);
 
     return (
-        <div style={{ display: 'flex', height: '93vh', padding: '20px' }}>
+        <div style={{ display: 'flex', height: '95vh', padding: '21px' }}>
             {
                 documentFound
                     ? (
@@ -116,7 +117,7 @@ export default function Chat() {
             }
             <div
                 style={{
-                    backgroundColor: darkTheme.palette.divider,
+                    backgroundColor: theme.palette.background.default,
                     width: '50%',
                     padding: '1.25rem',
                     borderRadius: '0 1rem 1rem 0'
@@ -127,7 +128,7 @@ export default function Chat() {
                         height: '100%',
                         display: 'flex',
                         justifyContent: 'flex-end',
-                        flexDirection: 'column'
+                        flexDirection: 'column',
                     }}
                 >
                     <div id="scroller" style={{ overflowY: 'auto', paddingRight: '0.5rem' }}>
