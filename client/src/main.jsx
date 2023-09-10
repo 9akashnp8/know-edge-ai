@@ -11,7 +11,7 @@ import Root from './features/core/routes/root.jsx';
 import Home from './features/core/routes/home.jsx';
 import Chat from './features/chat/routes/chat.jsx';
 import Flashcards from './features/flashcards/routes/flashcards.jsx';
-import Documents from './features/document/routes/documents.jsx';
+import Documents from './features/document/routes/document.jsx';
 import { theme } from './features/core/theme.js';
 
 import './main.css'
@@ -26,17 +26,17 @@ const router = createBrowserRouter([
                 element: <Home />
             },
             {
-                path: '/chat',
+                path: '/document',
+                element: <Documents />
+            },
+            {
+                path: 'document/chat',
                 element: <Chat />
             },
             {
-                path: '/flashcards',
+                path: 'document/flashcards',
                 element: <Flashcards />
             },
-            {
-                path: '/documents',
-                element: <Documents />
-            }
         ]
     },
 ]);
