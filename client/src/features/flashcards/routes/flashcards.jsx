@@ -3,13 +3,13 @@ import { useSearchParams } from "react-router-dom";
 
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 
 import FlashCard from "../components/FlashCard";
 import { darkTheme } from "../../../main";
+import SecondaryButton from "../../core/components/SecondaryButton";
+import PrimaryButton from "../../core/components/PrimaryButton";
 
 export default function Flashcards() {
     const [topic, setTopic] = useState("");
@@ -56,12 +56,10 @@ export default function Flashcards() {
                                 label={searchParams.get('fileName')}
                                 onChange={(e) => setTopic(e.target.value)}
                             />
-                            <Button variant="contained" type="submit">Generate</Button>
+                            <PrimaryButton variant="contained" type="submit">Generate</PrimaryButton>
                             {isDownloadable
                                 ? (
-                                    <Button
-                                        variant="outlined"
-                                        type="submit"
+                                    <SecondaryButton
                                         sx={{ marginLeft: 'auto !important' }}
                                         href={`data:text/json;charset=utf-8,${encodeURIComponent(
                                             JSON.stringify(flashcards, null, '\t')
@@ -69,14 +67,13 @@ export default function Flashcards() {
                                         download="filename.json"
                                     >
                                         Download
-                                    </Button>
+                                    </SecondaryButton>
                                 )
                                 : null
                             }
                         </Stack>
                     </form>
                 </Box>
-                <Divider />
                 <Box pt={2}>
                     <Grid container spacing={2}>
                         {flashcards.response ? flashcards.response.map((card) => {

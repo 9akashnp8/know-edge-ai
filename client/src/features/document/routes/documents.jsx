@@ -6,13 +6,15 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 
 import { Link } from 'react-router-dom';
 
 import { useState, useEffect } from "react";
 
 import { API_BASE_URL } from "../../../utils/constants"
+import PrimaryButton from '../../core/components/PrimaryButton';
+import SecondaryButton from '../../core/components/SecondaryButton';
+import TertiaryButton from '../../core/components/TertiaryButton';
 
 export default function Documents() {
     const [documents, setDocuments] = useState(null);
@@ -30,7 +32,7 @@ export default function Documents() {
     }, [])
 
     return (
-        <Paper>
+        <Paper sx={{ height: '100vh'}} >
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
@@ -53,13 +55,13 @@ export default function Documents() {
                                 <TableCell align='right'>
                                     <Stack direction={'row'} spacing={2} justifyContent={'flex-end'}>
                                         <Link to={`/chat?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
-                                            <Button variant="contained">Chat</Button>
+                                            <PrimaryButton>Chat</PrimaryButton>
                                         </Link>
                                         <Link to={`/flashcards?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
-                                            <Button variant="contained">Flashcards</Button>
+                                            <SecondaryButton>Flashcards</SecondaryButton>
                                         </Link>
                                         <Link to={`/delete?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
-                                            <Button variant="outlined" color="error">Delete</Button>
+                                            <TertiaryButton accentColor={'#B21D38'} >Delete</TertiaryButton>
                                         </Link>
                                     </Stack>
                                 </TableCell>
