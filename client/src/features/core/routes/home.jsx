@@ -67,7 +67,7 @@ export default function Home() {
                             </Stack>
                         </Button>
                     </label>
-                    <Link to={'/documents'} style={{ textDecoration: 'none' }}>
+                    <Link to={'/document'} style={{ textDecoration: 'none' }}>
                         <Button
                             component={Card}
                             sx={{

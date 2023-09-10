@@ -98,7 +98,7 @@ export default function Chat() {
     }, [hasFetchedDocument]);
 
     return (
-        <div style={{ display: 'flex', height: '95vh', padding: '21px' }}>
+        <div style={{ display: 'flex', height: 'calc(100vh - 40px)', padding: '20px' }}>
             {
                 documentFound
                     ? (

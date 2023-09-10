@@ -54,13 +54,13 @@ export default function Documents() {
                                 </TableCell>
                                 <TableCell align='right'>
                                     <Stack direction={'row'} spacing={2} justifyContent={'flex-end'}>
-                                        <Link to={`/chat?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
+                                        <Link to={`chat?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
                                             <PrimaryButton>Chat</PrimaryButton>
                                         </Link>
-                                        <Link to={`/flashcards?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
+                                        <Link to={`flashcards?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
                                             <SecondaryButton>Flashcards</SecondaryButton>
                                         </Link>
-                                        <Link to={`/delete?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
+                                        <Link to={`delete?fileName=${row.name}`} style={{ textDecoration: 'none' }}>
                                             <TertiaryButton accentColor={'#B21D38'} >Delete</TertiaryButton>
                                         </Link>
                                     </Stack>

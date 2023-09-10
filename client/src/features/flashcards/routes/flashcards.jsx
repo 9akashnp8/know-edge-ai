@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useSearchParams } from "react-router-dom";
+import { useTheme } from "@mui/material";
 
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -7,11 +8,11 @@ import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid';
 
 import FlashCard from "../components/FlashCard";
-import { darkTheme } from "../../../main";
 import SecondaryButton from "../../core/components/SecondaryButton";
 import PrimaryButton from "../../core/components/PrimaryButton";
 
 export default function Flashcards() {
+    const theme = useTheme();
     const [topic, setTopic] = useState("");
     const [flashcards, setFlashcards] = useState([]);
     const [isDownloadable, setIsDownloadable] = useState(false);
@@ -40,9 +41,9 @@ export default function Flashcards() {
         <div style={{ padding: '20px' }}>
             <div
                 style={{
-                    backgroundColor: darkTheme.palette.divider,
+                    backgroundColor: theme.palette.background.default,
                     padding: '20px',
-                    height: '88vh',
+                    minHeight: 'calc(100vh - 80px)',
                     borderRadius: '1rem'
                 }}
             >
