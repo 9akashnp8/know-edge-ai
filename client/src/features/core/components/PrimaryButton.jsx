@@ -1,8 +1,8 @@
 import { styled } from '@mui/system';
 import { ButtonBase } from '@mui/material';
 
-export const BaseButton = styled(ButtonBase)(({ theme }) => ({
-    padding: '10px',
+export const BaseButton = styled(ButtonBase)(({ theme, variant }) => ({
+    padding: variant === 'small' ? '6px' : '10px',
     borderRadius: '6px'
 }))
 

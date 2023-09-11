@@ -108,7 +108,7 @@ export default function Chat() {
                             frameBorder="0"
                             scrolling="auto"
                             style={{
-                                width: '50%',
+                                width: '95%',
                                 borderRadius: '1rem 0 0 1rem'
                             }}
                         ></embed>
