@@ -1,11 +1,11 @@
 import { IconButton } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import SendIcon from '@mui/icons-material/Send';
 
 export default function AskButton({onClick}) {
 
     return (
         <IconButton onClick={(e) => onClick()}>
-            <SearchIcon />
+            <SendIcon color='primary'  />
         </IconButton>
     )
 }
