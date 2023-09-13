@@ -2,8 +2,11 @@ import os
 import tempfile
 from fastapi import (
     UploadFile,
-    APIRouter,
+    APIRouter
+)
+from fastapi.responses import (
     Response,
+    JSONResponse
 )
 from decouple import config
 from langchain.llms import OpenAI
@@ -78,7 +81,7 @@ def get_file(file_name: str):
     try:
         res = supabase.storage.from_('document').download(file_name)
     except StorageException:
-        return Response({"message": "Requested File Not Found"}, status_code=404)
+        return JSONResponse({"message": "Requested File Not Found"}, status_code=404)
     else:
         return Response(content=res, media_type="application/pdf")
 
