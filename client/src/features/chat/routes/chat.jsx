@@ -9,17 +9,16 @@ import FileNotFound from "../../core/components/FileNotFound";
 import AskButton from "../components/AskButton";
 import ChatMessage from "../components/ChatMessage";
 import { API_BASE_URL } from "../../../utils/constants";
+import { useGetDocumentQuery } from "../../api/apiSlice";
 
 export default function Chat() {
     const theme = useTheme();
+    const [searchParams] = useSearchParams();
     const [question, setQuestion] = useState("");
     const [loading, setLoading] = useState(false);
-    const [messageHistory, setMessageHistory] = useState([]);
     const [chatResponse, setChatResponse] = useState('')
-    const [hasFetchedDocument, setHasFetchedDocument] = useState(false)
-    const [documentFound, setDocumentFound] = useState(true);
-    const [fileUrl, setFileUrl] = useState('');
-    const [searchParams] = useSearchParams();
+    const [messageHistory, setMessageHistory] = useState([]);
+    const { data, error } = useGetDocumentQuery(searchParams.get('fileName'))
 
     const handleClickSendMessage = useCallback(() => {
         setMessageHistory([...messageHistory, { user: 'user', message: question }]);
@@ -68,53 +67,18 @@ export default function Chat() {
         }
     }
 
-    /**
-     * Get document from server
-     * @param {string} fileName - the filename (including ".pdf")
-     * present in the query param.
-     */
-    async function getDocument(fileName) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/getfile/?file_name=${fileName}`)
-            if (response.ok) {
-                const document = await response.blob()
-                setFileUrl(URL.createObjectURL(document))
-            } else if (response.status == 400) {
-                console.log("File Not Found")
-                setDocumentFound(false);
-            } else {
-                console.log("Error when fetching file")
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    useEffect(() => {
-        if (!hasFetchedDocument) {
-            getDocument(searchParams.get('fileName'));
-            setHasFetchedDocument(true);
-        }
-    }, [hasFetchedDocument]);
-
     return (
         <div style={{ display: 'flex', height: 'calc(100vh - 40px)' }}>
-            {
-                documentFound
-                    ? (
-                        <embed
-                            src={fileUrl}
-                            type="application/pdf"
-                            frameBorder="0"
-                            scrolling="auto"
-                            style={{
-                                width: '95%',
-                                borderRadius: '1rem 0 0 1rem'
-                            }}
-                        ></embed>
-                    )
-                    : <FileNotFound />
-            }
+            <embed
+                src={data ? URL.createObjectURL(data) : ''}
+                type="application/pdf"
+                frameBorder="0"
+                scrolling="auto"
+                style={{
+                    width: '95%',
+                    borderRadius: '1rem 0 0 1rem'
+                }}
+            ></embed>
             <div
                 style={{
                     backgroundColor: theme.palette.background.default,
