@@ -5,6 +5,7 @@ import {
     createBrowserRouter,
     RouterProvider,
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
 
 import Root from './features/core/routes/root.jsx';
@@ -13,6 +14,7 @@ import Chat from './features/chat/routes/chat.jsx';
 import Flashcards from './features/flashcards/routes/flashcards.jsx';
 import Documents from './features/document/routes/document.jsx';
 import { theme } from './features/core/theme.js';
+import { store } from './features/core/store.js';
 
 import './main.css'
 
@@ -43,8 +45,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <ThemeProvider theme={theme}>
-            <RouterProvider router={router} />
-        </ThemeProvider>
+        <Provider store={store}>
+            <ThemeProvider theme={theme}>
+                <RouterProvider router={router} />
+            </ThemeProvider>
+        </Provider>
     </React.StrictMode>,
 )
