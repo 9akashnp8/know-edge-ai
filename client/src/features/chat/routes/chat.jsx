@@ -68,7 +68,7 @@ export default function Chat() {
     }
 
     return (
-        <div style={{ display: 'flex', height: 'calc(100vh - 40px)' }}>
+        <div style={{ display: 'flex', height: 'calc(100vh - 84px)' }}>
             <embed
                 src={data ? URL.createObjectURL(data) : ''}
                 type="application/pdf"

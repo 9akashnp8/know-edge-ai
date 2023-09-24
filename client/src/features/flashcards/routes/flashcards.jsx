@@ -43,7 +43,7 @@ export default function Flashcards() {
                 style={{
                     backgroundColor: theme.palette.background.default,
                     padding: '20px',
-                    minHeight: 'calc(100vh - 80px)',
+                    minHeight: 'calc(100vh - 124px)',
                     borderRadius: '1rem'
                 }}
             >

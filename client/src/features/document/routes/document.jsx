@@ -5,12 +5,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import LinearProgress from '@mui/material/LinearProgress';
 import { useTheme } from '@mui/material';
 
 import { Link } from 'react-router-dom';
-
-
 
 import { useListDocumentsQuery } from '../../api/apiSlice';
 import PrimaryButton from '../../core/components/PrimaryButton';
@@ -26,7 +23,7 @@ export default function Documents() {
             component={Paper}
             sx={{
                 backgroundColor: theme.palette.background.default,
-                height: 'calc(100vh - 40px)',
+                height: 'calc(100vh - 84px)',
                 display: 'block',
                 overflowY: 'scroll',
             }}
