@@ -20,25 +20,25 @@ import './main.css'
 
 const router = createBrowserRouter([
     {
+        id: "crumb:home",
         path: '/',
         element: <Root />,
         children: [
             {
-                path: '/',
-                element: <Home />
+                id: "home",
+                path: "/",
+                element: <Home />,
             },
             {
-                path: '/document',
-                element: <Documents />
-            },
-            {
-                path: 'document/chat',
-                element: <Chat />
+                id: "crumb:documents",
+                path: 'document',
             },
             {
                 path: 'document/flashcards',
                 element: <Flashcards />
             },
+                ]
+            }
         ]
     },
 ]);
