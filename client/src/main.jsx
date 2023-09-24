@@ -13,6 +13,7 @@ import Home from './features/core/routes/home.jsx';
 import Chat from './features/chat/routes/chat.jsx';
 import Flashcards from './features/flashcards/routes/flashcards.jsx';
 import Documents from './features/document/routes/document.jsx';
+import DocumentRoot from './features/document/routes/index.jsx';
 import { theme } from './features/core/theme.js';
 import { store } from './features/core/store.js';
 
@@ -32,11 +33,23 @@ const router = createBrowserRouter([
             {
                 id: "crumb:documents",
                 path: 'document',
-            },
-            {
-                path: 'document/flashcards',
-                element: <Flashcards />
-            },
+                element: <DocumentRoot />,
+                children: [
+                    {
+                        id: "documentIndex",
+                        index: true,
+                        element: <Documents />,
+                    },
+                    {
+                        id: "crumb:chat",
+                        path: 'chat',
+                        element: <Chat />,
+                    },
+                    {
+                        id: "crumb:flashcards",
+                        path: 'flashcards',
+                        element: <Flashcards />,
+                    },
                 ]
             }
         ]
