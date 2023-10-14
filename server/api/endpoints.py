@@ -127,6 +127,6 @@ async def message_stream(user_message: UserMessage):
     of previous chat)
     """
     return EventSourceResponse(
-        streaming_response_chain.generate_response(user_message.message),
+        streaming_response_chain.generate_response(user_message.message, "s3-gsg.pdf"),
         media_type="text/event-stream"
     )

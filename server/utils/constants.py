@@ -1,4 +1,8 @@
-PERSIST_DIRECTORY = 'db'
+import os
+
+# set db folder to server root folder from any 2nd level module
+ABS_PATH = os.path.dirname(os.path.abspath(__file__ + "../../"))
+DB_DIR = os.path.join(ABS_PATH, "db") 
 
 mock_flashcard_response = [
     {

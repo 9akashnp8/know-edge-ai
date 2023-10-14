@@ -7,8 +7,9 @@ from langchain.chains import ConversationChain, ConversationalRetrievalChain
 
 import asyncio
 from decouple import config
+from functools import cache
 
-from utils.constants import PERSIST_DIRECTORY
+from utils.constants import DB_DIR
 from core.functions import get_chat_history
 from core.prompts import CHAT_PROMPT
 
@@ -21,7 +22,17 @@ class StreamingConversationChain:
         self.openai_api_key = openai_api_key
         self.temperature = temparature
 
-    async def generate_response(self, message: str):
+    @cache
+    def get_vectorstore(self, collection_name: str) -> Chroma:
+        # TODO: Handle collection doesn't exist
+        return Chroma(
+            collection_name=collection_name,
+            persist_directory=DB_DIR,
+            embedding_function=self.embedding
+        )
+
+    async def generate_response(self, message: str, collection_name: str = None):
+        vectorstore = self.get_vectorstore(collection_name)
         callback_handler = AsyncIteratorCallbackHandler()
         llm = OpenAI(
             callbacks=[callback_handler],
@@ -32,7 +43,7 @@ class StreamingConversationChain:
         qa = ConversationalRetrievalChain.from_llm(
             llm=llm,
             verbose=True,
-            retriever=self.vectorstore.as_retriever(),
+            retriever=vectorstore.as_retriever(),
             memory=self.memory,
             get_chat_history=get_chat_history
         )
