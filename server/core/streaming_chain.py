@@ -1,5 +1,5 @@
-from langchain.llms import OpenAI
-from langchain.vectorstores import Chroma
+from langchain.llms.openai import OpenAI
+from langchain.vectorstores.chroma import Chroma
 from langchain.memory import ConversationBufferMemory
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -16,7 +16,6 @@ from core.prompts import CHAT_PROMPT
 class StreamingConversationChain:
     memory = ConversationBufferMemory(memory_key="chat_history")
     embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
-    vectorstore = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
 
     def __init__(self, openai_api_key: str, temparature: float) -> None:
         self.openai_api_key = openai_api_key

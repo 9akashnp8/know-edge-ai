@@ -9,8 +9,7 @@ from fastapi.responses import (
     JSONResponse
 )
 from decouple import config
-from langchain.llms import OpenAI
-from langchain.vectorstores import Chroma
+from langchain.llms.openai import OpenAI
 from storage3.utils import StorageException
 from sse_starlette.sse import EventSourceResponse
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -27,12 +26,11 @@ from core.functions import (
 from .models import QueryModel, UserMessage
 from core.streaming_chain import StreamingConversationChain
 from utils.functions import clean_flashcard_response
-from utils.constants import PERSIST_DIRECTORY, mock_flashcard_response
+from utils.constants import mock_flashcard_response
 
 router = APIRouter()
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
 embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
-vectorstore = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=embedding)
 streaming_response_chain = StreamingConversationChain(
     openai_api_key=config('OPENAI_API_KEY'),
     temparature=1

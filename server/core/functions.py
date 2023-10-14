@@ -1,6 +1,6 @@
 from langchain.document_loaders import PDFMinerLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import Chroma
+from langchain.vectorstores.chroma import Chroma
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.schema import get_buffer_string
 
