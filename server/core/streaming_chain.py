@@ -8,6 +8,7 @@ from langchain.chains import ConversationChain, ConversationalRetrievalChain
 import asyncio
 from decouple import config
 from functools import cache
+from sse_starlette import ServerSentEvent
 
 from utils.constants import DB_DIR
 from core.functions import get_chat_history
@@ -41,14 +42,12 @@ class StreamingConversationChain:
         )
         qa = ConversationalRetrievalChain.from_llm(
             llm=llm,
-            verbose=True,
             retriever=vectorstore.as_retriever(),
             memory=self.memory,
             get_chat_history=get_chat_history
         )
         conversation = ConversationChain(
             llm=llm,
-            verbose=True,
             memory=self.memory,
             prompt=CHAT_PROMPT,
         )
@@ -58,6 +57,9 @@ class StreamingConversationChain:
         run = asyncio.create_task(conversation.apredict(input=message))
 
         async for token in callback_handler.aiter():
-            yield token
+            yield ServerSentEvent(data=token, event='message')
+        
+        if callback_handler.done.is_set():
+            yield ServerSentEvent(data='', event='end')
 
         await run

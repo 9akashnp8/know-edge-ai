@@ -1,5 +1,6 @@
 import os
 import tempfile
+from queue import Queue
 from fastapi import (
     UploadFile,
     APIRouter
@@ -29,6 +30,7 @@ from utils.functions import clean_flashcard_response
 from utils.constants import mock_flashcard_response
 
 router = APIRouter()
+message_queue = Queue()
 llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
 embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
 streaming_response_chain = StreamingConversationChain(
@@ -115,8 +117,8 @@ def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1, mock
     response = clean_flashcard_response(llm(prompt))
     return {"response": response}
 
-@router.post('/stream', response_class=EventSourceResponse)
-async def message_stream(user_message: UserMessage):
+@router.post('/stream')
+async def add_msg_to_queue(user_message: UserMessage):
     """stream endpoint to chat with gen ai.
 
     Args:
@@ -124,7 +126,23 @@ async def message_stream(user_message: UserMessage):
     to chat with document, without to chat in general (but with context
     of previous chat)
     """
-    return EventSourceResponse(
-        streaming_response_chain.generate_response(user_message.message, "s3-gsg.pdf"),
-        media_type="text/event-stream"
-    )
+    message_queue.put(user_message)
+    return JSONResponse({"status": "success"})
+
+
+@router.get('/stream', response_class=EventSourceResponse)
+async def message_stream():
+    """stream endpoint to chat with gen ai.
+
+    Args:
+        user_message (UserMessage): Prefix user_message with "/doc"
+    to chat with document, without to chat in general (but with context
+    of previous chat)
+    """
+    if not message_queue.empty():
+        user_message: UserMessage = message_queue.get()
+        return EventSourceResponse(
+            streaming_response_chain
+            .generate_response(user_message.message, "s3-gsg.pdf")
+        )
+    return EventSourceResponse(content=iter(()))
