@@ -1,8 +1,9 @@
 // Hooks and other functions
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { getStreamingResponse } from "../../api/functions";
+import { sendMessage } from "../../api/functions";
+import { eventSourceWrapper } from "../../api/functions";
 
 // UI Components
 import ChatInput from "./ChatInput"
@@ -21,34 +22,23 @@ export default function ChatBox() {
         setMessageHistory([...messageHistory, { user: 'user', message: question }]);
         dispatch(setMessage(""))
         setResponseLoading(true)
-        getResponse(question)
+        sendMessage(question)
     };
 
-    async function getResponse(message) {
-        const body = JSON.stringify({ "message": message })
-        const reader = getStreamingResponse(body)
-
-        let streamingResponse = "";
-        while (true) {
-            let { value, done } = await reader.read()
-            if (done) {
-                setMessageHistory((prevmessageHistory) => [
-                    ...prevmessageHistory,
-                    { user: 'system', message: streamingResponse }
-                ]);
-                setChatResponse('');
-                setResponseLoading(false)
-                break
-            }
-
-            const pattern = /data: /;
-            if (Boolean(value.match(pattern))) {
-                value = value.replace(pattern, "")
-                streamingResponse += value
-            }
-            setChatResponse(streamingResponse);
+    useEffect(() => {
+        let msg = ''
+        eventSourceWrapper((data, eventType) => {
+        setResponseLoading(false)
+        if (eventType == 'end') {
+            const payload = { user: "system", message: msg }
+            setMessageHistory([...messageHistory, payload]);
+            setChatResponse("")
+        } else {
+            msg += data
+            setChatResponse(msg)
         }
-    }
+        })
+    }, [messageHistory])
 
     return (
         <div
