@@ -10,7 +10,7 @@ from fastapi.responses import (
     JSONResponse
 )
 from decouple import config
-from langchain.llms.openai import OpenAI
+from langchain_community.llms.ollama import Ollama
 from storage3.utils import StorageException
 from sse_starlette.sse import EventSourceResponse
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -31,7 +31,7 @@ from utils.constants import mock_flashcard_response
 
 router = APIRouter()
 message_queue = Queue()
-llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
+llm = Ollama(model="gemma:2b")
 embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
 streaming_response_chain = StreamingConversationChain(
     openai_api_key=config('OPENAI_API_KEY'),

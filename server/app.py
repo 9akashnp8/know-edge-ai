@@ -1,4 +1,4 @@
-from langchain.llms import OpenAI
+from langchain_community.llms.ollama import Ollama
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
