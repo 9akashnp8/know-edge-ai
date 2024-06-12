@@ -28,7 +28,7 @@ from core.streaming_chain import StreamingConversationChain
 from utils.functions import clean_flashcard_response
 from utils.constants import mock_flashcard_response
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 llm = Ollama(model="gemma:2b")
 embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
 streaming_response_chain = StreamingConversationChain(
@@ -49,17 +49,16 @@ async def upload_file(payload: UploadFile):
     if payload.content_type != 'application/pdf':
         return {'message': 'Please upload a PDF file'}
 
-    with tempfile.TemporaryDirectory(dir=".") as temp_dir:
-        file_path = os.path.join(temp_dir, payload.filename)
+    # TODO: store to temp dir and save to cloud
+    # TODO: move core logic to background task
+    file_path = os.path.join("upload-files", payload.filename)
 
-        with open(file_path, "wb") as f:
-            data = await payload.read()
-            f.write(data)
+    with open(file_path, "wb") as f:
+        data = await payload.read()
+        f.write(data)
 
-        chunks = pdf_to_text_chunks(file_path=file_path)
-        create_embeddings(docs=chunks, collection_name=payload.filename)
-        res = supabase.storage.from_('document').upload(
-            payload.filename,data, {"content-type": "application/pdf"})
+    chunks = pdf_to_text_chunks(file_path=file_path)
+    create_embeddings(docs=chunks)
 
     return {"message": "embeddings created successfully"}
 
