@@ -1,6 +1,6 @@
 import os
+import json
 import tempfile
-from queue import Queue
 from fastapi import (
     UploadFile,
     APIRouter
@@ -9,13 +9,13 @@ from fastapi.responses import (
     Response,
     JSONResponse
 )
-from decouple import config
-from langchain.llms.openai import OpenAI
-from storage3.utils import StorageException
+# from decouple import config
+from langchain_community.llms.ollama import Ollama
+# from storage3.utils import StorageException
 from sse_starlette.sse import EventSourceResponse
-from langchain.embeddings.openai import OpenAIEmbeddings
+# from langchain.embeddings.openai import OpenAIEmbeddings
 
-from utils.db import supabase
+# from utils.db import supabase
 from core.prompts import (
     flash_card_prompt_template,
 )
@@ -28,13 +28,13 @@ from .models import QueryModel, UserMessage
 from core.streaming_chain import StreamingConversationChain
 from utils.functions import clean_flashcard_response
 from utils.constants import mock_flashcard_response
+from core.history_aware_rag import conversational_rag_chain
 
-router = APIRouter()
-message_queue = Queue()
-llm = OpenAI(openai_api_key=config('OPENAI_API_KEY'), temperature=1)
-embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
+router = APIRouter(prefix="/api")
+llm2 = Ollama(model="gemma:2b")
+# embedding = OpenAIEmbeddings(openai_api_key='BNV')
 streaming_response_chain = StreamingConversationChain(
-    openai_api_key=config('OPENAI_API_KEY'),
+    openai_api_key='BNV',
     temparature=1
 )
 
@@ -51,17 +51,16 @@ async def upload_file(payload: UploadFile):
     if payload.content_type != 'application/pdf':
         return {'message': 'Please upload a PDF file'}
 
-    with tempfile.TemporaryDirectory(dir=".") as temp_dir:
-        file_path = os.path.join(temp_dir, payload.filename)
+    # TODO: store to temp dir and save to cloud
+    # TODO: move core logic to background task
+    file_path = os.path.join("upload-files", payload.filename)
 
-        with open(file_path, "wb") as f:
-            data = await payload.read()
-            f.write(data)
+    with open(file_path, "wb") as f:
+        data = await payload.read()
+        f.write(data)
 
-        chunks = pdf_to_text_chunks(file_path=file_path)
-        create_embeddings(docs=chunks, collection_name=payload.filename)
-        res = supabase.storage.from_('document').upload(
-            payload.filename,data, {"content-type": "application/pdf"})
+    chunks = pdf_to_text_chunks(file_path=file_path)
+    create_embeddings(docs=chunks)
 
     return {"message": "embeddings created successfully"}
 
@@ -80,7 +79,7 @@ def get_file(file_name: str):
     """
     try:
         res = supabase.storage.from_('document').download(file_name)
-    except StorageException:
+    except Exception:
         return JSONResponse({"message": "Requested File Not Found"}, status_code=404)
     else:
         return Response(content=res, media_type="application/pdf")
@@ -114,35 +113,24 @@ def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1, mock
         number=number,
         context=' '.join(context), topic=payload.query
     )
-    response = clean_flashcard_response(llm(prompt))
+    response = clean_flashcard_response(llm2(prompt))
     return {"response": response}
 
 @router.post('/stream')
 async def add_msg_to_queue(user_message: UserMessage):
-    """stream endpoint to chat with gen ai.
+    """stream endpoint to generate streaming gen ai response.
 
     Args:
         user_message (UserMessage): Prefix user_message with "/doc"
     to chat with document, without to chat in general (but with context
     of previous chat)
     """
-    message_queue.put(user_message)
-    return JSONResponse({"status": "success"})
+    def generator(input: str):
+        config = {"configurable": {"session_id": "abc2"}}
+        for chunk in conversational_rag_chain.stream({"input": input}, config=config):
+            if "answer" in chunk:
+                content = chunk["answer"]
+                yield content
 
-
-@router.get('/stream', response_class=EventSourceResponse)
-async def message_stream():
-    """stream endpoint to chat with gen ai.
-
-    Args:
-        user_message (UserMessage): Prefix user_message with "/doc"
-    to chat with document, without to chat in general (but with context
-    of previous chat)
-    """
-    if not message_queue.empty():
-        user_message: UserMessage = message_queue.get()
-        return EventSourceResponse(
-            streaming_response_chain
-            .generate_response(user_message.message, "s3-gsg.pdf")
-        )
-    return EventSourceResponse(content=iter(()))
+    message = user_message.message
+    return EventSourceResponse(generator(message))
