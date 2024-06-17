@@ -1,4 +1,5 @@
 import os
+import json
 import tempfile
 from fastapi import (
     UploadFile,
@@ -8,13 +9,13 @@ from fastapi.responses import (
     Response,
     JSONResponse
 )
-from decouple import config
+# from decouple import config
 from langchain_community.llms.ollama import Ollama
-from storage3.utils import StorageException
+# from storage3.utils import StorageException
 from sse_starlette.sse import EventSourceResponse
-from langchain.embeddings.openai import OpenAIEmbeddings
+# from langchain.embeddings.openai import OpenAIEmbeddings
 
-from utils.db import supabase
+# from utils.db import supabase
 from core.prompts import (
     flash_card_prompt_template,
 )
@@ -27,12 +28,13 @@ from .models import QueryModel, UserMessage
 from core.streaming_chain import StreamingConversationChain
 from utils.functions import clean_flashcard_response
 from utils.constants import mock_flashcard_response
+from core.history_aware_rag import conversational_rag_chain
 
 router = APIRouter(prefix="/api")
-llm = Ollama(model="gemma:2b")
-embedding = OpenAIEmbeddings(openai_api_key=config('OPENAI_API_KEY'))
+llm2 = Ollama(model="gemma:2b")
+# embedding = OpenAIEmbeddings(openai_api_key='BNV')
 streaming_response_chain = StreamingConversationChain(
-    openai_api_key=config('OPENAI_API_KEY'),
+    openai_api_key='BNV',
     temparature=1
 )
 
@@ -77,7 +79,7 @@ def get_file(file_name: str):
     """
     try:
         res = supabase.storage.from_('document').download(file_name)
-    except StorageException:
+    except Exception:
         return JSONResponse({"message": "Requested File Not Found"}, status_code=404)
     else:
         return Response(content=res, media_type="application/pdf")
@@ -111,7 +113,7 @@ def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1, mock
         number=number,
         context=' '.join(context), topic=payload.query
     )
-    response = clean_flashcard_response(llm(prompt))
+    response = clean_flashcard_response(llm2(prompt))
     return {"response": response}
 
 @router.post('/stream')
@@ -124,8 +126,11 @@ async def add_msg_to_queue(user_message: UserMessage):
     of previous chat)
     """
     def generator(input: str):
-        for chunk in llm.stream(input):
-            yield chunk
+        config = {"configurable": {"session_id": "abc2"}}
+        for chunk in conversational_rag_chain.stream({"input": input}, config=config):
+            if "answer" in chunk:
+                content = chunk["answer"]
+                yield content
 
     message = user_message.message
     return EventSourceResponse(generator(message))
