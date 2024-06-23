@@ -5,11 +5,11 @@ export const apiSlice = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/api'}),
     endpoints: (builder) => ({
         listDocuments: builder.query({
-            query: () => '/allfiles'
+            query: () => '/documents'
         }),
         getDocument: builder.query({
             query: (fileName) => ({
-                url: `/getfile/?file_name=${fileName}`,
+                url: `/documents/${fileName}`,
                 responseHandler: (response) => response.blob()
             }),
         })

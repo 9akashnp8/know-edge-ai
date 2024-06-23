@@ -42,12 +42,12 @@ const router = createBrowserRouter([
                     },
                     {
                         id: "crumb:chat",
-                        path: 'chat',
+                        path: 'chat/:fileName',
                         element: <Chat />,
                     },
                     {
                         id: "crumb:flashcards",
-                        path: 'flashcards',
+                        path: 'flashcards/:fileName',
                         element: <Flashcards />,
                     },
                 ]

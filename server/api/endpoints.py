@@ -1,4 +1,5 @@
 import os
+import glob
 import json
 import tempfile
 from fastapi import (
@@ -7,7 +8,8 @@ from fastapi import (
 )
 from fastapi.responses import (
     Response,
-    JSONResponse
+    JSONResponse,
+    FileResponse,
 )
 # from decouple import config
 from langchain_community.llms.ollama import Ollama
@@ -38,7 +40,7 @@ streaming_response_chain = StreamingConversationChain(
     temparature=1
 )
 
-@router.post("/uploadfile/")
+@router.post("/documents")
 async def upload_file(payload: UploadFile):
     """Store file temporarily to create
     embeddings (local) & upload file to cloud
@@ -64,7 +66,7 @@ async def upload_file(payload: UploadFile):
 
     return {"message": "embeddings created successfully"}
 
-@router.get("/getfile/")
+@router.get("/documents/{file_name}")
 def get_file(file_name: str):
     """get file from cloud, send file
     bytes directly as response
@@ -77,19 +79,19 @@ def get_file(file_name: str):
     TODO: store file locally? downloading file everytime
     not efficient.
     """
-    try:
-        res = supabase.storage.from_('document').download(file_name)
-    except Exception:
-        return JSONResponse({"message": "Requested File Not Found"}, status_code=404)
-    else:
-        return Response(content=res, media_type="application/pdf")
+    return FileResponse(
+        f"upload-files/{file_name}.pdf",
+        media_type="application/pdf"
+    )
 
-@router.get("/allfiles/")
+@router.get("/documents")
 def get_all_files():
     """List all files from cloud"""
-    res = supabase.storage.from_('document').list()
-    res.pop(0) # remove default 'emptyFolderPlace' item, see Issue #9155 on supabase.
-    return res
+    all_files = [
+        file.split("\\")[1]
+        for file in glob.glob("upload-files/*.pdf")
+    ]
+    return JSONResponse(all_files)
 
 @router.post('/flashcard/')
 def generate_flashcard(payload: QueryModel, fileName: str, number: int = 1, mock: bool = False):
