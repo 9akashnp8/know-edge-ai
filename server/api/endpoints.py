@@ -40,7 +40,7 @@ streaming_response_chain = StreamingConversationChain(
     temparature=1
 )
 
-@router.post("/uploadfile/")
+@router.post("/documents")
 async def upload_file(payload: UploadFile):
     """Store file temporarily to create
     embeddings (local) & upload file to cloud
@@ -66,7 +66,7 @@ async def upload_file(payload: UploadFile):
 
     return {"message": "embeddings created successfully"}
 
-@router.get("/getfile/")
+@router.get("/documents/{file_name}")
 def get_file(file_name: str):
     """get file from cloud, send file
     bytes directly as response
@@ -80,11 +80,11 @@ def get_file(file_name: str):
     not efficient.
     """
     return FileResponse(
-        f"upload-files/{file_name}",
+        f"upload-files/{file_name}.pdf",
         media_type="application/pdf"
     )
 
-@router.get("/allfiles/")
+@router.get("/documents")
 def get_all_files():
     """List all files from cloud"""
     all_files = [

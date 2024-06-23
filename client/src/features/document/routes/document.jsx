@@ -35,7 +35,8 @@ export default function Documents() {
                 </TableRow>
             </TableHead>
             <TableBody>
-                {documents?.map((row) => (
+                {documents?.map((row) => row.replace(".pdf", ""))
+                    .map((row) => (
                     <TableRow
                         key={row}
                         hover
@@ -43,13 +44,13 @@ export default function Documents() {
                         <TableCell align='center'>{row}</TableCell>
                         <TableCell align='center'>
                             <Stack direction={'row'} spacing={2} justifyContent={'center'}>
-                                <Link to={`chat?fileName=${row}`} style={{ textDecoration: 'none' }}>
+                                <Link to={`chat/${row}`} style={{ textDecoration: 'none' }}>
                                     <PrimaryButton>Chat</PrimaryButton>
                                 </Link>
-                                <Link to={`flashcards?fileName=${row}`} style={{ textDecoration: 'none' }}>
+                                <Link to={`flashcards/${row}`} style={{ textDecoration: 'none' }}>
                                     <SecondaryButton>Flashcards</SecondaryButton>
                                 </Link>
-                                <Link to={`delete?fileName=${row}`} style={{ textDecoration: 'none' }}>
+                                <Link to={`delete/${row}`} style={{ textDecoration: 'none' }}>
                                     <TertiaryButton accentColor={'#B21D38'} >Delete</TertiaryButton>
                                 </Link>
                             </Stack>
