@@ -1,9 +1,8 @@
 // Hooks and other functions
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTheme } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { sendMessage } from "../../api/functions";
-import { eventSourceWrapper } from "../../api/functions";
+import { fetchEventSource } from "@microsoft/fetch-event-source";
 
 // UI Components
 import ChatInput from "./ChatInput"
@@ -17,28 +16,39 @@ export default function ChatBox() {
     const [chatResponse, setChatResponse] = useState('')
     const [messageHistory, setMessageHistory] = useState([]);
     const [responseLoading, setResponseLoading] = useState(false);
-
+    
     function handleClickSendMessage (question) {
+        const controller = new AbortController()
+        const { signal } =  controller
         setMessageHistory([...messageHistory, { user: 'user', message: question }]);
         dispatch(setMessage(""))
         setResponseLoading(true)
-        sendMessage(question)
-    };
-
-    useEffect(() => {
-        let msg = ''
-        eventSourceWrapper((data, eventType) => {
-        setResponseLoading(false)
-        if (eventType == 'end') {
-            const payload = { user: "system", message: msg }
-            setMessageHistory([...messageHistory, payload]);
-            setChatResponse("")
-        } else {
-            msg += data
-            setChatResponse(msg)
-        }
+        fetchEventSource("http://localhost:8000/api/stream", {
+            method: "POST",
+            headers: {
+                "Accept": "text/event-stream",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ "message": question }),
+            onopen: ((response) => {
+                console.log(`Connection Opened: ${response.status}`)
+            }),
+            onerror: (_) => {
+                controller.abort()
+                throw new Error()
+            },
+            onmessage: (ev) => {
+                const message = ev.data
+                setChatResponse((prev) => prev += message)
+            },
+            onclose: () => {
+                console.log("Connection Closed")
+                setResponseLoading(false)
+                controller.abort()
+            },
+            signal: signal,
         })
-    }, [messageHistory])
+    };
 
     return (
         <div
