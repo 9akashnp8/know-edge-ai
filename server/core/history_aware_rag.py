@@ -1,17 +1,17 @@
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_community.llms.ollama import Ollama
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.embeddings.ollama import OllamaEmbeddings
 from langchain_community.vectorstores.chroma import Chroma
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
-
+from decouple import config
 
 store = {}
-model = Ollama(model="gemma:2b")
+model = ChatOpenAI(api_key=config("OPENAI_API_KEY"))
 embedding = OllamaEmbeddings(model="gemma:2b")
 vectorstore = Chroma(persist_directory='./chroma_db', embedding_function=embedding)
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 5})
