@@ -14,7 +14,7 @@ from fastapi.responses import (
 # from decouple import config
 from langchain_community.llms.ollama import Ollama
 # from storage3.utils import StorageException
-from sse_starlette.sse import EventSourceResponse
+from sse_starlette.sse import EventSourceResponse, ServerSentEvent
 # from langchain.embeddings.openai import OpenAIEmbeddings
 
 # from utils.db import supabase
@@ -128,11 +128,14 @@ async def add_msg_to_queue(user_message: UserMessage):
     of previous chat)
     """
     def generator(input: str):
+        response = ""
         config = {"configurable": {"session_id": "abc2"}}
         for chunk in conversational_rag_chain.stream({"input": input}, config=config):
             if "answer" in chunk:
                 content = chunk["answer"]
-                yield content
+                response += content
+                yield ServerSentEvent(event="message", data=response)
+        yield ServerSentEvent(event="end", data=response)
 
     message = user_message.message
     return EventSourceResponse(generator(message))
