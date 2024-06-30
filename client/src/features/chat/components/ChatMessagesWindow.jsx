@@ -1,10 +1,12 @@
 // Internal UI Components
 import ChatMessage from "./ChatMessage"
 
-export default function ChatMessagesWindow({ messageHistory, chatResponse }) {
+export default function ChatMessagesWindow({ chatResponse }) {
+    const messageHistory = JSON.parse(localStorage.getItem("messageHistory"))
+
     return (
         <div id="scroller" style={{ overflowY: 'auto', paddingRight: '0.5rem' }}>
-            {messageHistory.map((message, idx) => (
+            {messageHistory?.map((message, idx) => (
                 <ChatMessage key={idx} messager={message.user} >
                     {message ? message.message : null}
                 </ChatMessage>
