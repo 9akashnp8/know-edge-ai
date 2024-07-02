@@ -58,6 +58,7 @@ export default function ChatInput({ setChatResponse }) {
             id="chat"
             label="Chat"
             multiline
+            disabled={loading}
             maxRows={4}
             sx={{ mt: 3 }}
             value={chatMessage}
