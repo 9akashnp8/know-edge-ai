@@ -14,7 +14,6 @@ export default function ChatBox() {
     return (
         <div
             style={{
-                backgroundColor: theme.palette.background.default,
                 width: '50%',
                 padding: '1.25rem',
                 borderRadius: '0 1rem 1rem 0'

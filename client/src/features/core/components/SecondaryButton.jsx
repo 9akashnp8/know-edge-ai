@@ -1,19 +1,9 @@
-import { styled } from '@mui/system';
-import { BaseButton } from "./PrimaryButton";
-
-const SecondaryButtonBase = styled(BaseButton)(({ theme }) => ({
-    color: theme.palette.primary.main,
-    border: `1px solid ${theme.palette.primary.main}`,
-    '&:hover': {
-        color: 'black',
-        backgroundColor: theme.palette.primary.main,
-    }
-}))
+import Button from "@mui/material/Button"
 
 export default function SecondaryButton({ children, ...props }) {
     return (
-        <SecondaryButtonBase {...props}>
+        <Button color="primary" variant="outlined" {...props}>
             {children}
-        </SecondaryButtonBase>
+        </Button>
     )
 }

@@ -22,7 +22,6 @@ export default function Documents() {
         <Table
             component={Paper}
             sx={{
-                backgroundColor: theme.palette.background.default,
                 height: 'calc(100vh - 84px)',
                 display: 'block',
                 overflowY: 'scroll',

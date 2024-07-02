@@ -10,8 +10,6 @@ import { useState } from "react";
 
 import { Link } from 'react-router-dom';
 
-import { startChatCTA, uploadDocumentCTA } from "../../../utils/theme";
-
 export default function Home() {
     const [loading, setLoading] = useState(false);
 
@@ -51,14 +49,14 @@ export default function Home() {
                     />
                     <label htmlFor="upload-document">
                         <Button
+                            variant="outlined"
+                            color="primary"
                             component={Card}
                             sx={{
                                 height: '100%',
                                 padding: 2,
                                 textTransform: 'none',
                                 fontSize: '1rem',
-                                color: 'white',
-                                backgroundColor: uploadDocumentCTA
                             }}
                         >
                             <Stack direction={'row'} spacing={1}>
@@ -69,14 +67,14 @@ export default function Home() {
                     </label>
                     <Link to={'/document'} style={{ textDecoration: 'none' }}>
                         <Button
+                           variant="contained"
+                           color="primary"
                             component={Card}
                             sx={{
                                 height: '100%',
                                 padding: 2,
                                 textTransform: 'none',
                                 fontSize: '1rem',
-                                color: 'white',
-                                backgroundColor: startChatCTA
                             }}
                         >
                             <Stack direction={'row'} spacing={1}>
