@@ -50,8 +50,8 @@ export default function FlashCard({ data }) {
                 >
                     <Typography mb={3}>{displayData}</Typography>
                     {!isViewingAnswer
-                        ? <PrimaryButton variant="small" onClick={handleViewAnswer}>View</PrimaryButton>
-                        : <SecondaryButton variant="small" onClick={handleHideAnswer}>Hide</SecondaryButton>
+                        ? <PrimaryButton size="small" onClick={handleViewAnswer}>View</PrimaryButton>
+                        : <SecondaryButton size="small" onClick={handleHideAnswer}>Hide</SecondaryButton>
                     }
                 </div>
             </Card>
