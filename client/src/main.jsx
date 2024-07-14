@@ -7,6 +7,8 @@ import {
 } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
+// Supports weights 100-900
+import '@fontsource-variable/inter';
 
 import Root from './features/core/routes/root.jsx';
 import Home from './features/core/routes/home.jsx';
